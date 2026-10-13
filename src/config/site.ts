@@ -14,8 +14,8 @@ export const site = {
   foundedYear: 2026,
   ogImage: '/og-default.png',
   contactForm: {
-    // Turn on only after RESEND_API_KEY is set in Cloudflare (see functions/api/contact.ts).
-    enabled: false,
+    // Needs RESEND_API_KEY set as a secret on the Worker (see worker/contact.ts).
+    enabled: true,
     // Public Turnstile site key (safe to commit). Leave empty to skip the captcha widget.
     turnstileSiteKey: '',
   },
