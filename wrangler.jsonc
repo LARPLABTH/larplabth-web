@@ -3,7 +3,7 @@
   // `name` must match the Worker's name in the Cloudflare dashboard.
   "name": "larplabth-web",
   "main": "worker/index.ts",
-  "compatibility_date": "2026-10-14",
+  "compatibility_date": "2026-10-01",
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",
