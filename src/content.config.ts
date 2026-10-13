@@ -25,15 +25,21 @@ const process = defineCollection({
 
 const projects = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/projects' }),
-  schema: z.object({
-    title: z.string(),
-    order: z.number(),
-    category: z.enum(['saas', 'tool', 'service', 'device', 'maker', 'consulting']),
-    status: z.enum(['coming-soon', 'in-progress', 'shipped']).default('coming-soon'),
-    summary: z.string(),
-    href: z.url().optional(),
-    draft: z.boolean().default(false),
-  }),
+  schema: ({ image }) =>
+    z.object({
+      title: z.string(),
+      order: z.number(),
+      category: z.enum(['saas', 'tool', 'service', 'device', 'maker', 'consulting']),
+      status: z.enum(['coming-soon', 'in-progress', 'shipped']).default('coming-soon'),
+      summary: z.string(),
+      href: z.url().optional(),
+      /** screenshot / cover shown on the card (path relative to the .md file) */
+      cover: image().optional(),
+      coverAlt: z.string().default(''),
+      /** featured projects take two columns on desktop */
+      featured: z.boolean().default(false),
+      draft: z.boolean().default(false),
+    }),
 });
 
 const faq = defineCollection({

@@ -1,5 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
+import { Image } from 'astro:assets';
 import SectionHeader from '../ui/SectionHeader.astro';
 
 const projects = (await getCollection('projects', (p) => !p.data.draft)).sort(
@@ -31,7 +32,7 @@ function identicon(input: string, size = 10): { x: number; y: number }[] {
 
 const statusLabel = {
   'coming-soon': 'Coming soon',
-  'in-progress': 'In progress',
+  'in-progress': 'In development',
   shipped: 'Shipped',
 };
 ---
@@ -43,33 +44,59 @@ const statusLabel = {
       num="04"
       label="Lab"
       title="Things we're building."
-      lead="Products, experiments and client work. The first entries are in the oven."
+      lead="Products and experiments from the lab. The first one is already out in the open, and more are on the way."
     />
     <ul class="lab">
       {projects.map((p) => {
         const tile = (
           <>
             <div class="lab__art">
-              <svg viewBox="0 0 10 10" shape-rendering="crispEdges" aria-hidden="true">
-                {identicon(p.id).map((c) => (
-                  <rect x={c.x} y={c.y} width="1" height="1" fill="currentColor" />
-                ))}
-              </svg>
+              {p.data.cover ? (
+                <Image
+                  src={p.data.cover}
+                  alt={p.data.coverAlt}
+                  widths={[480, 800, 1200]}
+                  sizes="(min-width: 56rem) 760px, 100vw"
+                  loading="lazy"
+                />
+              ) : (
+                <svg viewBox="0 0 10 10" shape-rendering="crispEdges" aria-hidden="true">
+                  {identicon(p.id).map((c) => (
+                    <rect x={c.x} y={c.y} width="1" height="1" fill="currentColor" />
+                  ))}
+                </svg>
+              )}
             </div>
             <div class="lab__meta">
               <p class="label">
                 <span>{p.data.category}</span>
-                <span class="lab__status">{statusLabel[p.data.status]}</span>
+                <span class="lab__status" data-status={p.data.status}>
+                  {statusLabel[p.data.status]}
+                </span>
               </p>
-              <h3 class="mono">{p.data.title}</h3>
+              <h3 class="lab__title">
+                {p.data.title}
+                {p.data.href && (
+                  <span class="lab__go mono" aria-hidden="true">
+                    -&gt;
+                  </span>
+                )}
+              </h3>
               <p class="muted">{p.data.summary}</p>
+              {p.data.href && <p class="lab__url mono">{new URL(p.data.href).host}</p>}
             </div>
           </>
         );
         return (
-          <li class="lab__item" data-reveal>
+          <li class:list={['lab__item', p.data.featured && 'lab__item--featured']} data-reveal>
             {p.data.href ? (
-              <a class="lab__tile" href={p.data.href} target="_blank" rel="noopener noreferrer">
+              <a
+                class="lab__tile"
+                href={p.data.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`${p.data.title} (opens in a new tab)`}
+              >
                 {tile}
               </a>
             ) : (
@@ -78,6 +105,17 @@ const statusLabel = {
           </li>
         );
       })}
+      <li class="lab__item lab__next" data-reveal aria-label="Next project: coming soon">
+        <div class="lab__nextbox mono" aria-hidden="true">
+          <p>
+            <span class="muted">$</span> larp new project
+          </p>
+          <p class="muted">&gt; scaffolding next idea ...</p>
+          <p>
+            <span class="muted">$</span> <span class="cursor" />
+          </p>
+        </div>
+      </li>
     </ul>
   </div>
 </section>
@@ -90,25 +128,46 @@ const statusLabel = {
     list-style: none;
     padding: 0;
   }
+  .lab__item--featured {
+    grid-column: span 2;
+  }
   .lab__tile {
     display: grid;
     gap: var(--s-4);
     height: 100%;
+    align-content: start;
   }
   .lab__art {
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 16 / 10;
     display: grid;
     place-items: center;
+    overflow: hidden;
     border: 1px solid var(--c-line);
     background: var(--c-surface);
     color: var(--c-line-strong);
-    transition: color 400ms var(--ease);
+    transition:
+      color 400ms var(--ease),
+      border-color var(--dur) var(--ease);
+  }
+  .lab__item--featured .lab__art {
+    aspect-ratio: 2 / 1;
   }
   .lab__art svg {
     width: 38%;
   }
+  .lab__art :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+    transition: transform 600ms var(--ease);
+  }
   .lab__tile:hover .lab__art {
     color: var(--c-text);
+    border-color: var(--c-text);
+  }
+  .lab__tile:hover .lab__art :global(img) {
+    transform: scale(1.02);
   }
   .lab__meta {
     display: grid;
@@ -121,20 +180,63 @@ const statusLabel = {
   .lab__status::before {
     content: '● ';
   }
-  .lab__meta h3 {
-    font-size: var(--fs-md);
+  .lab__status[data-status='in-progress']::before {
+    color: var(--c-signal);
+    animation: blink 1.6s steps(1) infinite;
+  }
+  .lab__title {
+    display: flex;
+    align-items: baseline;
+    gap: var(--s-3);
+    font-size: var(--fs-lg);
     font-weight: 500;
   }
-  .lab__meta p:last-child {
+  .lab__go {
+    color: var(--c-muted);
     font-size: var(--fs-sm);
+    transition:
+      transform var(--dur) var(--ease),
+      color var(--dur) var(--ease);
   }
+  .lab__tile:hover .lab__go {
+    color: var(--c-text);
+    transform: translateX(4px);
+  }
+  .lab__meta p:not(.label):not(.lab__url) {
+    font-size: var(--fs-sm);
+    max-width: 44rem;
+  }
+  .lab__url {
+    font-size: var(--fs-xs);
+    letter-spacing: 0.04em;
+    color: var(--c-muted);
+  }
+
+  /* "next project" placeholder tile — stretches to the height of its row */
+  .lab__next {
+    display: grid;
+  }
+  .lab__nextbox {
+    display: grid;
+    align-content: center;
+    gap: var(--s-1);
+    min-height: 9rem;
+    padding: var(--s-5);
+    border: 1px dashed var(--c-line-strong);
+    font-size: var(--fs-sm);
+    line-height: 1.8;
+    overflow: hidden;
+  }
+  .lab__nextbox p {
+    white-space: pre;
+  }
+
   @media (max-width: 56rem) {
     .lab {
       grid-template-columns: minmax(0, 1fr);
     }
-    .lab__tile {
-      grid-template-columns: 9rem minmax(0, 1fr);
-      align-items: center;
+    .lab__item--featured {
+      grid-column: auto;
     }
   }
 </style>
