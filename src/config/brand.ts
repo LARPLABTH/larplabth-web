@@ -4,6 +4,7 @@
  * Letters are monoline strokes on a 10-unit cap height, 7-unit width, with chamfered
  * (45°) corners. The same paths drive the site logo (Logo.astro), the favicon and the
  * share image (scripts/generate-brand.mjs), so every version matches exactly.
+ * Wordmark = `<L/>` + ARP + LAB + TH, where TH expands to TECH on hover.
  *
  * Draw with: fill none, stroke-width STROKE, butt caps, miter joins, clipped to y∈[0,10].
  */
@@ -24,17 +25,27 @@ export const GLYPH: Record<string, string> = {
   C: 'M6.2 .8H2.8L.8 2.8V7.2L2.8 9.2H6.2',
 };
 
-/** x offsets (in units) of each word in the full wordmark. */
+/** The `<L/>` mark occupies x ∈ [0, MARK_W] once shifted by MARK_X (apex miters stick out to -0.4 / 28.2). */
+export const MARK_W = 28.6;
+export const MARK_X = 0.4;
+
+/**
+ * x offsets (in units) in the full wordmark `<L/>ARP LAB TH`: the first letter is the
+ * `<L/>` mark. TH is at `th` (T) and `th + ADV` (H); in the expanded TECH state H moves
+ * to `th + 3*ADV` and E, C sit at `th + ADV`, `th + 2*ADV`.
+ */
 export const LAYOUT = (() => {
-  const larp = 0;
-  const lab = larp + 4 * ADV + WORD_GAP - 3; // 44
-  const th = lab + 3 * ADV + WORD_GAP - 3; // 78
+  const arp = MARK_W + 4; // 32.6
+  const larpEnd = arp + 2 * ADV + 7; // end of P
+  const lab = larpEnd + WORD_GAP;
+  const labEnd = lab + 2 * ADV + 7;
+  const th = labEnd + WORD_GAP;
   return {
-    larp,
+    arp,
     lab,
-    th, // T at th, H at th+ADV (TH) or th+3*ADV (TECH)
-    widthTH: th + ADV + 7, // 95
-    widthTECH: th + 3 * ADV + 7, // 115
+    th,
+    widthTH: th + ADV + 7,
+    widthTECH: th + 3 * ADV + 7,
   };
 })();
 
@@ -48,16 +59,5 @@ export const MARK = {
   gt: 'M23.6 .8L27 5L23.6 9.2',
 } as const;
 
-/** Thailand flag stripes, 1:1:2:1:1 (red, white, blue, white, red) as [from,to,colour] in cap units. */
-export const FLAG = {
-  red: '#e23d55',
-  white: '#f4f5f8',
-  blue: '#4457d6',
-  stripes: [
-    [0, 1.667, 'red'],
-    [1.667, 3.333, 'white'],
-    [3.333, 6.667, 'blue'],
-    [6.667, 8.333, 'white'],
-    [8.333, 10, 'red'],
-  ],
-} as const;
+/** Thailand flag colours, one per letter of TECH (T red · E white · C blue · H red). */
+export const TECH_COLORS = { T: 'red', E: 'white', C: 'blue', H: 'red' } as const;

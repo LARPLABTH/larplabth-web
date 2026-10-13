@@ -4,7 +4,7 @@
 // Requires Node ≥ 22.18 (runs the .ts import directly).
 import { mkdirSync, writeFileSync } from 'node:fs';
 import sharp from 'sharp';
-import { ADV, CAP, FLAG, GLYPH, LAYOUT, MARK, STROKE } from '../src/config/brand.ts';
+import { ADV, CAP, GLYPH, LAYOUT, MARK, MARK_X, STROKE } from '../src/config/brand.ts';
 
 const DARK = {
   bg: '#0f0f0f',
@@ -29,21 +29,22 @@ const letters = (word, x0) =>
   [...word]
     .map((c, i) => `<path d="${GLYPH[c]}" transform="translate(${x0 + i * ADV} 0)"/>`)
     .join('');
-const flagGradient = (id, t) =>
-  `<linearGradient id="${id}" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="${CAP}">${FLAG.stripes
-    .map(
-      ([a, b, k]) =>
-        `<stop offset="${a / CAP}" stop-color="${t[k]}"/><stop offset="${b / CAP}" stop-color="${t[k]}"/>`,
-    )
-    .join('')}</linearGradient>`;
 
-/** Wordmark in user units (viewBox 0 0 widthTH CAP). th: 'muted' | 'flag' */
-function fullGroup(t, id, th = 'muted') {
-  const stroke = th === 'flag' ? `url(#${id})` : t.muted;
-  return `<defs>${flagGradient(id, t)}<clipPath id="c-${id}"><rect x="-1" y="0" width="${LAYOUT.widthTH + 2}" height="${CAP}"/></clipPath></defs>
+/** `<L/>ARP LAB TH` (tech=false, TH muted) or `<L/>ARP LAB TECH` (tech=true, T red · E white · C blue · H red). */
+function fullGroup(t, id, tech = false) {
+  const w = tech ? LAYOUT.widthTECH : LAYOUT.widthTH;
+  const th = LAYOUT.th;
+  const thPaths = tech
+    ? `<path d="${GLYPH.T}" transform="translate(${th} 0)" stroke="${t.red}"/>
+<path d="${GLYPH.E}" transform="translate(${th + ADV} 0)" stroke="${t.white}"/>
+<path d="${GLYPH.C}" transform="translate(${th + 2 * ADV} 0)" stroke="${t.blue}"/>
+<path d="${GLYPH.H}" transform="translate(${th + 3 * ADV} 0)" stroke="${t.red}"/>`
+    : `<g stroke="${t.muted}">${letters('TH', th)}</g>`;
+  return `<defs><clipPath id="c-${id}"><rect x="-1" y="-1" width="${w + 2}" height="${CAP + 2}"/></clipPath></defs>
 <g fill="none" stroke-width="${STROKE}" stroke-linejoin="miter" stroke-linecap="butt" clip-path="url(#c-${id})">
-<g stroke="${t.fg}">${letters('LARP', LAYOUT.larp)}${letters('LAB', LAYOUT.lab)}</g>
-<g stroke="${stroke}">${letters('TH', LAYOUT.th)}</g></g>`;
+<g transform="translate(${MARK_X} 0)"><path d="${MARK.lt}" stroke="${t.muted}"/><path d="${MARK.l}" transform="translate(${MARK.lx} 0)" stroke="${t.fg}"/><path d="${MARK.slash}" stroke="${t.muted}"/><path d="${MARK.gt}" stroke="${t.muted}"/></g>
+<g stroke="${t.fg}">${letters('ARP', LAYOUT.arp)}${letters('LAB', LAYOUT.lab)}</g>
+${thPaths}</g>`;
 }
 function markGroup(t, id, sw = STROKE) {
   return `<defs><clipPath id="c-${id}"><rect x="-2" y="0" width="34" height="${CAP}"/></clipPath></defs>
@@ -94,11 +95,11 @@ let dots = '';
 for (let y = 12; y < H; y += 24)
   for (let x = 12; x < W; x += 24)
     dots += `<rect x="${x}" y="${y}" width="2" height="2" fill="${DARK.fg}" opacity="0.07"/>`;
-const sc = 10.5; // wordmark scale
+const sc = 7.2; // wordmark scale (TECH is the widest state)
 const og = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">
 <rect width="100%" height="100%" fill="${DARK.bg}"/>${dots}
 <rect x="40" y="40" width="${W - 80}" height="${H - 80}" fill="none" stroke="${DARK.line}" stroke-width="2"/>
-<g transform="translate(96 150) scale(${sc})">${fullGroup(DARK, 'og', 'flag')}</g>
+<g transform="translate(96 160) scale(${sc})">${fullGroup(DARK, 'og', true)}</g>
 <text x="96" y="370" font-family="Menlo, monospace" font-size="30" fill="${DARK.fg}">$ We build software, tools &amp; devices.</text>
 <text x="96" y="420" font-family="Menlo, monospace" font-size="22" fill="${DARK.muted}">Students from Thailand. Yes, we're LARPing. The work is real.</text>
 <text x="96" y="545" font-family="Menlo, monospace" font-size="20" fill="${DARK.muted}">larplabth.com</text>
