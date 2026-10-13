@@ -1,4 +1,4 @@
-# LARP LAB TH — www.larplabth.com
+# LARP LAB TH — larplabth.com
 
 Main website for **LARP LAB TH**, a developer team building SaaS, tools, services, devices and maker
 projects, and offering consulting and problem solving.
@@ -67,24 +67,26 @@ scripts/generate-og.mjs     OG image generator (sharp)
 
 ## Deploy: Cloudflare Pages
 
-1. **Domain:** buy `larplabth.com` through Cloudflare Registrar (Dashboard → Domain Registration). It was unregistered as of 2026-10-13.
-2. **Repo:** push this folder to GitHub or GitLab.
-3. **Pages:** go to Workers & Pages → Create → Pages → Connect to Git.
+The site is live at **https://larplabth.com** (the bare domain is canonical; there's no `www`).
+
+1. **Repo:** `LARPLABTH/larplabth-web` on GitHub. Pushing to `main` deploys automatically.
+2. **Pages:** Workers & Pages → Pages project connected to the repo.
    - Framework preset: **Astro**
    - Build command: `npm run build`
    - Output directory: `dist`
-   - Env var: `NODE_VERSION=22` (or newer)
-4. **Custom domain:** in the Pages project → Custom domains, add `www.larplabth.com`.
-5. **Apex redirect:** add a Rules → Redirect Rule for `larplabth.com/*` → `https://www.larplabth.com/${1}` with a 301. You also need a proxied DNS record for the apex (for example `AAAA @ 100::`). Pages' `_redirects` file can't match on hostname, so this has to be a Redirect Rule.
-6. **Email:** set up `hello@larplabth.com` with Cloudflare Email Routing, or update `site.email`.
+   - Env var: `NODE_VERSION=22`
+3. **Custom domain:** `larplabth.com` attached to the Pages project (Custom domains tab).
+4. **HTTPS:** SSL/TLS → Edge Certificates → turn on **Always Use HTTPS**.
+5. **Email:** `larplab.th@gmail.com` (shown on the site; change in `src/config/site.ts`).
 
 `public/_headers` adds security headers and long-term caching for hashed `/_astro/*` assets.
 
 ## TODO (content phase)
 
 - [ ] Real logo → `Logo.astro`, `favicon.svg`, re-run `npm run og`
-- [ ] About copy and team profiles
+- [ ] Team profiles (team is anonymous for now)
 - [ ] FAQ answers
-- [ ] Contact: confirm email and socials; choose a form backend (e.g. a Pages Function + email API)
+- [ ] Contact form: Pages Function + email service + Turnstile (see notes in Contact.astro)
+- [ ] Thai version, after the first project is added
 - [ ] Lab projects
 - [ ] Confirm the Stack list

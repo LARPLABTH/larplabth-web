@@ -48,7 +48,7 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" 
   ${pixelText('TH', 96 + 8 * 6 * px + 16, 190 + 7 * px - 7 * 7, 7, MUTED)}
   <text x="96" y="420" font-family="Menlo, monospace" font-size="30" fill="${FG}">$ We build software, tools &amp; devices.</text>
   <text x="96" y="470" font-family="Menlo, monospace" font-size="22" fill="${MUTED}">SaaS · Tools · Services · Devices · Maker · Consulting</text>
-  <text x="96" y="545" font-family="Menlo, monospace" font-size="20" fill="${MUTED}">www.larplabth.com</text>
+  <text x="96" y="545" font-family="Menlo, monospace" font-size="20" fill="${MUTED}">larplabth.com</text>
 </svg>`;
 
 await sharp(Buffer.from(svg)).png().toFile('public/og-default.png');

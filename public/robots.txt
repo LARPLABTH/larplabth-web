@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://www.larplabth.com/sitemap-index.xml
+Sitemap: https://larplabth.com/sitemap-index.xml

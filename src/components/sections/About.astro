@@ -1,39 +1,65 @@
 ---
 import SectionHeader from '../ui/SectionHeader.astro';
-import { site } from '../../config/site';
 
-// PLACEHOLDER — replace with real copy and team profiles.
-const stats = [
-  { value: '06', label: 'Disciplines' },
-  { value: 'TH', label: 'Based in' },
-  { value: String(site.foundedYear), label: 'Est.' },
-  { value: '1', label: 'Team, end to end' },
+// Honest facts only — the team is anonymous for now.
+const facts = [
+  { label: 'Who', value: 'Students' },
+  { label: 'Where', value: 'Thailand' },
+  { label: 'Names', value: 'Anon' },
+  { label: 'Proof', value: 'Work' },
 ];
 ---
 
 <section class="section" id="about" aria-labelledby="about-title">
   <div class="container">
-    <SectionHeader id="about-title" num="05" label="About" title="A small lab with a wide bench." />
+    <SectionHeader
+      id="about-title"
+      num="01"
+      label="About"
+      title="Yes, we're LARPing. Watch what we ship."
+    />
     <div class="about">
       <div class="about__copy" data-reveal>
         <p>
-          <span class="tag label">[placeholder]</span> {site.name} is a team of developers and
-          makers who like problems that cross boundaries — where software meets hardware, and where
-          the answer isn't on the first page of search results.
+          We're <strong>LARPers</strong> — college students from Thailand who use
+          <strong>LARP-Power</strong> to build projects that make a real dent in the world.
         </p>
         <p class="muted">
-          Team profiles and our story are coming soon. In the meantime, the fastest way to get to
-          know us is to send us a problem.
+          The name is a joke with a point. It's sarcasm aimed at anyone who has ever said{' '}
+          <em>"you guys are just LARPing, you can't actually do anything."</em> Every project we put
+          out is built with real skill and real effort. So we took the insult, put it on the door,
+          and decided to answer it with work.
+        </p>
+        <p class="muted">
+          We're staying anonymous for now. The work speaks first, and the names can come later.
         </p>
       </div>
-      <dl class="stats" data-reveal>
-        {stats.map((s) => (
-          <div class="stat">
-            <dt class="label">{s.label}</dt>
-            <dd class="pixel">{s.value}</dd>
-          </div>
-        ))}
-      </dl>
+
+      <div class="about__side" data-reveal>
+        <div
+          class="term mono"
+          role="img"
+          aria-label="Terminal: a visitor says you are just LARPing; the reply is larp --prove, shipping."
+        >
+          <p>
+            <span class="muted">&gt;</span> "you guys are just larping"
+          </p>
+          <p>
+            <span class="muted">$</span> larp --prove
+          </p>
+          <p class="muted">&gt; building ........ ok</p>
+          <p class="muted">&gt; shipping ....... ok</p>
+          <p class="muted">&gt; credibility ..... earned</p>
+        </div>
+        <dl class="facts">
+          {facts.map((f) => (
+            <div class="fact">
+              <dt class="label">{f.label}</dt>
+              <dd class="pixel">{f.value}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
     </div>
   </div>
 </section>
@@ -51,25 +77,48 @@ const stats = [
     font-size: var(--fs-md);
     max-width: 38rem;
   }
-  .tag {
-    margin-right: 0.4em;
+  .about__copy strong {
+    font-weight: 500;
+    color: var(--c-text);
   }
-  .stats {
+  .about__copy em {
+    font-style: normal;
+    color: var(--c-text);
+    background: var(--c-surface);
+    padding: 0 0.3em;
+  }
+  .about__side {
+    display: grid;
+    gap: var(--s-5);
+    min-width: 0;
+  }
+  .term {
+    padding: var(--s-5) var(--s-6);
+    border: 1px solid var(--c-line-strong);
+    background: var(--c-surface);
+    font-size: var(--fs-sm);
+    line-height: 1.9;
+    overflow-x: auto;
+  }
+  .term p {
+    white-space: pre;
+  }
+  .facts {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1px;
     background: var(--c-line);
     border: 1px solid var(--c-line);
   }
-  .stat {
+  .fact {
     display: flex;
     flex-direction: column-reverse;
     gap: var(--s-2);
     padding: var(--s-5);
     background: var(--c-bg);
   }
-  .stat dd {
-    font-size: var(--fs-xl);
+  .fact dd {
+    font-size: var(--fs-lg);
     line-height: 1;
   }
   @media (max-width: 56rem) {

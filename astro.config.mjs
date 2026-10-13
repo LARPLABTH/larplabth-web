@@ -4,7 +4,7 @@ import sitemap from '@astrojs/sitemap';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://www.larplabth.com',
+  site: 'https://larplabth.com',
   trailingSlash: 'ignore',
   integrations: [sitemap()],
   build: {
