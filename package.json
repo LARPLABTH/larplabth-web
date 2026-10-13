@@ -13,7 +13,7 @@
     "check": "astro check",
     "format": "prettier --write .",
     "astro": "astro",
-    "og": "node scripts/generate-og.mjs"
+    "brand": "node scripts/generate-brand.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",

@@ -15,6 +15,10 @@
   --c-signal: #f5f5f0; /* cursor, hover, focus */
   --c-dot: rgb(232 232 227 / 0.08);
   --c-pixel: 232 232 227; /* rgb triplet for canvas */
+  /* Thailand flag, tuned per theme for contrast (logo TH → TECH hover) */
+  --th-red: #e23d55;
+  --th-white: #f4f5f8;
+  --th-blue: #4457d6;
   color-scheme: dark;
 
   /* type */
@@ -68,6 +72,9 @@
   --c-signal: #0f0f0f;
   --c-dot: rgb(22 22 22 / 0.09);
   --c-pixel: 22 22 22;
+  --th-red: #a51931;
+  --th-white: #cfd3e0;
+  --th-blue: #2d3a9e;
   color-scheme: light;
 }
 
@@ -84,6 +91,9 @@
     --c-signal: #0f0f0f;
     --c-dot: rgb(22 22 22 / 0.09);
     --c-pixel: 22 22 22;
+    --th-red: #a51931;
+    --th-white: #cfd3e0;
+    --th-blue: #2d3a9e;
     color-scheme: light;
   }
 }

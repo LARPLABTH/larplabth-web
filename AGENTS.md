@@ -26,4 +26,4 @@ Consult these guides before working on related tasks:
 - See README.md for the content map, design tokens and deploy steps.
 - Static site only. Keep effects as small vanilla TS modules in `src/scripts/fx/`, and gate every animation through `reducedMotion.ts`.
 - Colours come only from the tokens in `src/styles/tokens.css`. Don't hard-code hex values in components (OG/favicon generators excepted).
-- The logo is a placeholder. Swap `src/components/brand/Logo.astro` and `public/favicon.svg` together.
+- Logo geometry lives in `src/config/brand.ts` (custom monoline letters). `Logo.astro` renders it; `npm run brand` regenerates favicon, apple-touch-icon, OG image and `design/` assets from the same paths. Change the logo there, never in individual files.

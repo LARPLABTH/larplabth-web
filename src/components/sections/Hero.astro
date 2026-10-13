@@ -86,14 +86,31 @@ const terminal: Line[] = [
 <script>
   import { mountPixelField } from '../../scripts/fx/pixelField';
   import { initTypewriter } from '../../scripts/fx/typewriter';
+  import { MARK, STROKE } from '../../config/brand';
 
   const canvas = document.querySelector<HTMLCanvasElement>('[data-pixel-field]');
   const readout = document.querySelector<HTMLElement>('[data-field-readout]');
   const pad = (n: number) => String(n).padStart(3, '0');
 
+  /** Draws the <L/> mark (same geometry as the logo) centred on the grid. */
+  function drawMark(ctx: CanvasRenderingContext2D, cols: number, rows: number) {
+    const s = Math.min((cols * 0.86) / 28.6, (rows * 0.6) / 10);
+    ctx.save();
+    ctx.translate(cols / 2 - (28.6 * s) / 2 + 0.4 * s, rows / 2 - 5 * s);
+    ctx.scale(s, s);
+    ctx.lineWidth = STROKE * 1.25;
+    ctx.lineJoin = 'miter';
+    ctx.lineCap = 'butt';
+    ctx.strokeStyle = '#fff';
+    for (const d of [MARK.lt, MARK.slash, MARK.gt]) ctx.stroke(new Path2D(d));
+    ctx.translate(MARK.lx, 0);
+    ctx.stroke(new Path2D(MARK.l));
+    ctx.restore();
+  }
+
   if (canvas) {
-    void mountPixelField(canvas, {
-      lines: ['LARP', 'LAB'],
+    mountPixelField(canvas, {
+      shape: drawMark,
       cell: window.innerWidth < 640 ? 8 : 10,
       onPointer: (pos) => {
         if (readout) readout.textContent = pos ? `x:${pad(pos.x)} y:${pad(pos.y)}` : 'x:--- y:---';

@@ -1,78 +1,170 @@
 ---
 /**
- * PLACEHOLDER LOGO — swap this single file when the real logo is ready.
- * - mark:     8×8 pixel "L" with a cursor block (also used as favicon)
- * - wordmark: LARP_LAB in the pixel font with a blinking cursor
+ * LARP LAB TH logo — two forms, both drawn from src/config/brand.ts:
+ *   full: "LARP LAB TH". Hover (or keyboard focus on the parent link) on TH → it expands
+ *         to "TECH", drawn on in Thailand-flag stripes.
+ *   mark: "<L/>" — the L cut out of the wordmark, in code brackets.
+ *
+ * `uid` keeps SVG ids unique when the logo appears more than once on a page.
  */
+import { ADV, GLYPH, LAYOUT, MARK, FLAG, CAP } from '../../config/brand';
+
 interface Props {
-  variant?: 'full' | 'mark' | 'wordmark';
-  size?: number; // mark size in px
+  variant?: 'full' | 'mark';
+  uid?: string;
+  /** rendered height of the capital letters, in px */
+  height?: number;
   class?: string;
 }
-const { variant = 'full', size = 22, class: className } = Astro.props;
+const { variant = 'full', uid = 'x', height = 14, class: className } = Astro.props;
 
-// 8×8 grid: "L" stroke (2px wide) + a cursor block on the right.
-const MARK = [
-  'XX......',
-  'XX......',
-  'XX......',
-  'XX......',
-  'XX......',
-  'XXXXX.XX',
-  'XXXXX.XX',
-  '........',
-];
-const pixels = MARK.flatMap((row, y) =>
-  [...row].map((c, x) => (c === 'X' ? { x, y } : null)).filter((p) => p !== null),
-);
+const letters = (word: string, x0: number) =>
+  [...word].map((c, i) => ({ d: GLYPH[c]!, x: x0 + i * ADV }));
+const larp = letters('LARP', LAYOUT.larp);
+const lab = letters('LAB', LAYOUT.lab);
+const th = LAYOUT.th;
+const stops = FLAG.stripes.flatMap(([from, to, key]) => [
+  { o: from / CAP, c: `var(--th-${key})` },
+  { o: to / CAP, c: `var(--th-${key})` },
+]);
 ---
 
-<span class:list={['logo', `logo--${variant}`, className]}>
-  {variant !== 'wordmark' && (
+{variant === 'full' ? (
+  <span class:list={['logo', 'logo--full', className]} style={`--logo-h:${height}px`}>
     <svg
-      class="logo__mark"
-      width={size}
-      height={size}
-      viewBox="0 0 8 8"
-      shape-rendering="crispEdges"
-      aria-hidden="true"
+      class="logo__svg"
+      viewBox={`-1 0 ${LAYOUT.widthTECH + 2} ${CAP}`}
+      role="img"
+      aria-label="LARP LAB TH"
+      style={`--flag:url(#flag-${uid})`}
     >
-      {pixels.map((p) => (
-        <rect x={p.x} y={p.y} width="1" height="1" fill="currentColor" />
-      ))}
+      <defs>
+        <linearGradient
+          id={`flag-${uid}`}
+          gradientUnits="userSpaceOnUse"
+          x1="0"
+          y1="0"
+          x2="0"
+          y2={CAP}
+        >
+          {stops.map((s) => (
+            <stop offset={s.o} style={`stop-color:${s.c}`} />
+          ))}
+        </linearGradient>
+        <clipPath id={`clip-${uid}`}>
+          <rect x="-1" y="0" width={LAYOUT.widthTECH + 2} height={CAP} />
+        </clipPath>
+      </defs>
+      <g class="logo__paths" clip-path={`url(#clip-${uid})`}>
+        {[...larp, ...lab].map((l) => (
+          <path d={l.d} transform={`translate(${l.x} 0)`} />
+        ))}
+        <g class="logo__th">
+          <rect
+            class="logo__hit"
+            x={th - 3}
+            y="-1"
+            width={LAYOUT.widthTECH - th + 4}
+            height={CAP + 2}
+          />
+          <path d={GLYPH.T} transform={`translate(${th} 0)`} />
+          <g class="logo__ec" aria-hidden="true">
+            <path
+              class="logo__e"
+              pathLength="1"
+              d={GLYPH.E}
+              transform={`translate(${th + ADV} 0)`}
+            />
+            <path
+              class="logo__c"
+              pathLength="1"
+              d={GLYPH.C}
+              transform={`translate(${th + 2 * ADV} 0)`}
+            />
+          </g>
+          <g transform={`translate(${th + ADV} 0)`}>
+            <path class="logo__h" d={GLYPH.H} />
+          </g>
+        </g>
+      </g>
     </svg>
-  )}
-  {variant !== 'mark' && (
-    <span class="logo__word pixel">
-      LARP<span class="logo__us">_</span>LAB<sup class="logo__th mono">TH</sup>
-    </span>
-  )}
-</span>
+  </span>
+) : (
+  <span class:list={['logo', 'logo--mark', className]} style={`--logo-h:${height}px`}>
+    <svg class="logo__svg" viewBox={MARK.viewBox} role="img" aria-label="LARP LAB TH">
+      <defs>
+        <clipPath id={`mclip-${uid}`}>
+          <rect x="-2" y="0" width="34" height={CAP} />
+        </clipPath>
+      </defs>
+      <g class="logo__paths" clip-path={`url(#mclip-${uid})`}>
+        <path class="logo__dim" d={MARK.lt} />
+        <path d={MARK.l} transform={`translate(${MARK.lx} 0)`} />
+        <path class="logo__dim" d={MARK.slash} />
+        <path class="logo__dim" d={MARK.gt} />
+      </g>
+    </svg>
+  </span>
+)}
 
 <style>
   .logo {
     display: inline-flex;
-    align-items: center;
-    gap: 0.6rem;
     color: var(--c-text);
-    line-height: 1;
+    line-height: 0;
   }
-  .logo__mark {
-    flex: none;
+  .logo__svg {
+    display: block;
+    height: var(--logo-h, 14px);
+    width: auto;
+    overflow: visible;
   }
-  .logo__word {
-    font-size: 1.05rem;
-    letter-spacing: 0.04em;
-    white-space: nowrap;
+  .logo__paths :global(path) {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linejoin: miter;
+    stroke-linecap: butt;
   }
-  .logo__us {
-    animation: blink 1.05s steps(1) infinite;
+  .logo__paths :global(.logo__dim) {
+    stroke: var(--c-muted);
   }
-  .logo__th {
-    font-size: 0.55em;
-    margin-left: 0.25em;
-    letter-spacing: 0.08em;
-    color: var(--c-muted);
-    vertical-align: super;
+  .logo__hit {
+    fill: transparent;
+  }
+
+  /* ---- TH → TECH ---- */
+  .logo__th path {
+    stroke: var(--c-muted);
+    transition: stroke 200ms var(--ease);
+  }
+  .logo__h {
+    transition: transform 320ms var(--ease);
+  }
+  .logo__ec path {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    opacity: 0;
+    transition:
+      stroke-dashoffset 300ms var(--ease),
+      opacity 120ms linear,
+      stroke 200ms var(--ease);
+  }
+  .logo__c {
+    transition-delay: 90ms;
+  }
+
+  .logo__th:hover path,
+  :global(a:focus-visible) .logo__th path {
+    stroke: var(--flag);
+  }
+  .logo__th:hover .logo__h,
+  :global(a:focus-visible) .logo__th .logo__h {
+    transform: translateX(20px);
+  }
+  .logo__th:hover .logo__ec path,
+  :global(a:focus-visible) .logo__th .logo__ec path {
+    stroke-dashoffset: 0;
+    opacity: 1;
   }
 </style>

@@ -1,4 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10" shape-rendering="crispEdges">
-  <rect width="10" height="10" fill="#0f0f0f"/>
-  <path fill="#e8e8e3" d="M1 1h2v5h3v2H1zM7 6h2v2H7z"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+<rect width="32" height="32" rx="6.08" fill="#0f0f0f"/>
+<g transform="translate(2.9359440559440566 11.3006993006993) scale(0.9398601398601398)"><defs><clipPath id="c-fav"><rect x="-2" y="0" width="34" height="10"/></clipPath></defs>
+<g fill="none" stroke-width="2.5" stroke-linejoin="miter" stroke-linecap="butt" clip-path="url(#c-fav)">
+<path d="M5 .8L1.6 5L5 9.2" stroke="#8a8a85"/><path d="M.8 0V9.2H7" transform="translate(8 0)" stroke="#e8e8e3"/>
+<path d="M18 10.7L21.5 -.7" stroke="#8a8a85"/><path d="M23.6 .8L27 5L23.6 9.2" stroke="#8a8a85"/></g></g></svg>

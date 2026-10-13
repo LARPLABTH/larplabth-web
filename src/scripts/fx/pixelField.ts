@@ -3,8 +3,8 @@ import { onVisibility, prefersReducedMotion } from './reducedMotion';
 type Options = {
   /** Cell size in CSS px. */
   cell?: number;
-  /** Lines of text drawn as solid pixels inside the field. */
-  lines?: string[];
+  /** Draws the shape (white, any alpha) that the pixels assemble into, on a cols×rows canvas. */
+  shape: (ctx: CanvasRenderingContext2D, cols: number, rows: number) => void;
   /** Pointer influence radius in CSS px. */
   radius?: number;
   /** Called with pointer position in cells (or null when the pointer leaves). */
@@ -18,21 +18,13 @@ type Options = {
  * that assembles on load and scatters away from the pointer.
  * Static single frame under prefers-reduced-motion; paused when off-screen.
  */
-export async function mountPixelField(canvas: HTMLCanvasElement, opts: Options = {}) {
+export function mountPixelField(canvas: HTMLCanvasElement, opts: Options) {
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
 
   const cell = opts.cell ?? 10;
   const radius = opts.radius ?? 120;
-  const lines = opts.lines ?? ['LARP', 'LAB'];
   const reduce = prefersReducedMotion();
-
-  // The wordmark uses the pixel font — wait for it so the mask is correct.
-  try {
-    await document.fonts.load('32px Silkscreen');
-  } catch {
-    /* fall back to whatever font is available */
-  }
 
   let w = 0;
   let h = 0;
@@ -64,7 +56,7 @@ export async function mountPixelField(canvas: HTMLCanvasElement, opts: Options =
     cols = Math.ceil(w / cell);
     rows = Math.ceil(h / cell);
     seed = new Float32Array(cols * rows).map(() => Math.random());
-    mask = buildMask(cols, rows, lines);
+    mask = buildMask(cols, rows, opts.shape);
     opts.onLayout?.({ cols, rows });
   }
 
@@ -172,30 +164,15 @@ function easeOut(p: number): number {
   return 1 - Math.pow(1 - p, 3);
 }
 
-/** Rasterises text into a cols×rows bitmap using the pixel font. */
-function buildMask(cols: number, rows: number, lines: string[]): Uint8Array {
+/** Rasterises a shape into a cols×rows bitmap. */
+function buildMask(cols: number, rows: number, shape: Options['shape']): Uint8Array {
   const out = new Uint8Array(cols * rows);
   const off = document.createElement('canvas');
   off.width = cols;
   off.height = rows;
   const octx = off.getContext('2d', { willReadFrequently: true });
-  if (!octx || !lines.length) return out;
-
-  // Fit the longest line to ~78% width and the block to ~62% height.
-  octx.font = '10px Silkscreen, monospace';
-  const widest = Math.max(...lines.map((l) => octx.measureText(l).width));
-  const byWidth = (cols * 0.78 * 10) / widest;
-  const byHeight = (rows * 0.62) / (lines.length * 1.05);
-  const size = Math.max(5, Math.floor(Math.min(byWidth, byHeight)));
-
-  octx.font = `${size}px Silkscreen, monospace`;
-  octx.textAlign = 'center';
-  octx.textBaseline = 'middle';
-  octx.fillStyle = '#fff';
-  const lineH = size * 1.05;
-  const top = rows / 2 - ((lines.length - 1) * lineH) / 2;
-  lines.forEach((line, i) => octx.fillText(line, cols / 2, top + i * lineH));
-
+  if (!octx) return out;
+  shape(octx, cols, rows);
   const data = octx.getImageData(0, 0, cols, rows).data;
   for (let i = 0; i < out.length; i++) out[i] = data[i * 4 + 3]! > 110 ? 1 : 0;
   return out;

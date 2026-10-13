@@ -12,7 +12,7 @@ npm install
 npm run dev        # http://localhost:4321
 npm run build      # astro check + static build → dist/
 npm run preview    # serve dist/ locally
-npm run og         # regenerate public/og-default.png
+npm run brand      # regenerate favicon, OG image, avatar + design/ logos from brand.ts
 npm run format     # prettier
 ```
 
@@ -44,7 +44,7 @@ src/
   styles/global.css         reset, base, utilities (.label .mono .pixel .dot-grid .cursor)
   layouts/BaseLayout.astro  <head> SEO/OG/JSON-LD, theme init, skip link
   components/
-    brand/Logo.astro        placeholder logo (swap later)
+    brand/Logo.astro        logo: full wordmark (TH → TECH on hover) + <L/> mark
     layout/                 Header (+ mobile menu), Footer, ThemeToggle
     ui/                     SectionHeader, Button, Card, Prompt
     sections/               Hero, Ticker, Services, Process, Lab, Stack, About, Faq, Contact
@@ -55,13 +55,14 @@ src/
     reducedMotion.ts        reduced-motion guard, visibility helpers, [data-reveal]
   pages/index.astro, 404.astro
 public/  favicon.svg, og-default.png, robots.txt, _headers (Cloudflare)
-scripts/generate-og.mjs     OG image generator (sharp)
+scripts/generate-brand.mjs  favicon / OG / avatar generator (sharp)
+design/                     exported logos (SVG, avatar PNG) for use outside the site
 ```
 
 ## Design system (CI v0)
 
 - Soft monochrome palette: ink `#0F0F0F` and paper `#F2F1EC`, with greys between. There's no brand colour. Dark mode is the default, the site follows the OS setting, and a header toggle lets visitors override it.
-- Type: **Geist** for UI and headings, **Geist Mono** for labels and CLI text, and **Silkscreen** (a pixel font) for the wordmark and accents. Fonts are self-hosted via `@fontsource`.
+- Type: **Geist** for UI and headings, **Geist Mono** for labels and CLI text, and **Silkscreen** (a pixel font) for small accents (ticker, stats). The logo itself is custom-drawn, not a font. Fonts are self-hosted via `@fontsource`.
 - Motifs: numbered section headers (`01 // WHAT WE DO`), `$` prompts, the block cursor `█`, a dot grid, binary strips and scramble-on-hover.
 - Motion: every effect respects `prefers-reduced-motion` and pauses when off-screen.
 
@@ -83,9 +84,9 @@ The site is live at **https://larplabth.com** (the bare domain is canonical; the
 
 ## TODO (content phase)
 
-- [ ] Real logo → `Logo.astro`, `favicon.svg`, re-run `npm run og`
+- [x] Logo v1 (custom wordmark + `<L/>` mark)
 - [ ] Team profiles (team is anonymous for now)
-- [ ] FAQ answers
+- [x] FAQ answers (8 questions)
 - [ ] Contact form: Pages Function + email service + Turnstile (see notes in Contact.astro)
 - [ ] Thai version, after the first project is added
 - [ ] Lab projects
