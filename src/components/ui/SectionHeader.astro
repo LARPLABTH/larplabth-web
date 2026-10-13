@@ -11,12 +11,11 @@ const { num, label, title, lead, id } = Astro.props;
 ---
 
 <header class="sh" data-reveal>
-  <p class="sh__label label">
-    <span class="sh__num" data-scramble>
+  <p class="sh__tag">
+    <span class="sh__bubble mono" data-scramble>
       {num}
     </span>
-    <span aria-hidden="true">//</span>
-    <span>{label}</span>
+    <span class="sh__topic mono">{label}</span>
     <span class="sh__rule" aria-hidden="true"></span>
   </p>
   <h2 class="sh__title" id={id}>
@@ -32,20 +31,36 @@ const { num, label, title, lead, id } = Astro.props;
     margin-bottom: var(--s-8);
     max-width: 52rem;
   }
-  .sh__label {
+  .sh__tag {
     display: flex;
     align-items: center;
-    gap: 0.6em;
-    color: var(--c-muted);
+    gap: var(--s-3);
   }
-  .sh__num {
+  /* numbered bubble: the section's place in the page sequence */
+  .sh__bubble {
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 1px solid var(--c-text);
+    border-radius: 50%;
+    font-size: var(--fs-sm);
+    letter-spacing: 0.02em;
+    color: var(--c-bg);
+    background: var(--c-text);
+  }
+  .sh__topic {
+    font-size: var(--fs-md);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
     color: var(--c-text);
   }
   .sh__rule {
     flex: 1;
     height: 1px;
     min-width: 2rem;
-    max-width: 8rem;
+    max-width: 10rem;
     background: var(--c-line-strong);
   }
   .sh__title {

@@ -101,7 +101,7 @@ const og = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">
 <rect x="40" y="40" width="${W - 80}" height="${H - 80}" fill="none" stroke="${DARK.line}" stroke-width="2"/>
 <g transform="translate(96 160) scale(${sc})">${fullGroup(DARK, 'og', true)}</g>
 <text x="96" y="370" font-family="Menlo, monospace" font-size="30" fill="${DARK.fg}">$ We build software, tools &amp; devices.</text>
-<text x="96" y="420" font-family="Menlo, monospace" font-size="22" fill="${DARK.muted}">Students from Thailand. Yes, we're LARPing. The work is real.</text>
+<text x="96" y="420" font-family="Menlo, monospace" font-size="22" fill="${DARK.muted}">A team of college students from Thailand.</text>
 <text x="96" y="545" font-family="Menlo, monospace" font-size="20" fill="${DARK.muted}">larplabth.com</text>
 <g transform="translate(${W - 96 - 28 * 4.2} 515) scale(4.2)">${markGroup(DARK, 'ogm')}</g>
 </svg>`;

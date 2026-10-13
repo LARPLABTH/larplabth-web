@@ -1,12 +1,13 @@
 ---
 import SectionHeader from '../ui/SectionHeader.astro';
 
-// Honest facts only — the team is anonymous for now.
+// Facts shown beside the copy. `href` makes a fact clickable.
+// TODO: "HANA" is a placeholder — the team will explain what it is later.
 const facts = [
-  { label: 'Who', value: 'Students' },
+  { label: 'Who', value: 'LARPERs' },
   { label: 'Where', value: 'Thailand' },
-  { label: 'Names', value: 'Anon' },
-  { label: 'Proof', value: 'Work' },
+  { label: 'Infrastructure', value: 'HANA' },
+  { label: 'Proof', value: 'Works', href: '#lab' },
 ];
 ---
 
@@ -16,50 +17,47 @@ const facts = [
       id="about-title"
       num="01"
       label="About"
-      title="Yes, we're LARPing. Watch what we ship."
+      title="College students building real software, tools & devices."
     />
     <div class="about">
       <div class="about__copy" data-reveal>
         <p>
-          We're <strong>LARPers</strong> — college students from Thailand who use{' '}
-          <strong>LARP-Power</strong> to build projects that make a real dent in the world.
+          We're <strong>LARPers</strong> — a team of college students from Thailand. We turn our own
+          ideas into projects: SaaS products, tools, services, devices and maker builds.
         </p>
         <p class="muted">
-          The name is a joke with a point. It's sarcasm aimed at anyone who has ever said{' '}
-          <em>"you guys are just LARPing, you can't actually do anything."</em> Every project we put
-          out is built with real skill and real effort. So we took the insult, put it on the door,
-          and decided to answer it with work.
+          We also work with others. If you have something to build or a problem to solve, contact us
+          for development or consulting.
         </p>
-        <p class="muted">
-          We're staying anonymous for now. The work speaks first, and the names can come later.
-        </p>
+        <p class="muted">We're staying anonymous for now. More about the team soon.</p>
       </div>
 
-      <div class="about__side" data-reveal>
-        <div
-          class="term mono"
-          role="img"
-          aria-label="Terminal: a visitor says you are just LARPing; the reply is larp --prove, shipping."
-        >
-          <p>
-            <span class="muted">&gt;</span> "you guys are just larping"
-          </p>
-          <p>
-            <span class="muted">$</span> larp --prove
-          </p>
-          <p class="muted">&gt; building ........ ok</p>
-          <p class="muted">&gt; shipping ....... ok</p>
-          <p class="muted">&gt; credibility ..... earned</p>
-        </div>
-        <dl class="facts">
-          {facts.map((f) => (
-            <div class="fact">
-              <dt class="label">{f.label}</dt>
-              <dd class="pixel">{f.value}</dd>
-            </div>
-          ))}
-        </dl>
-      </div>
+      <ul class="facts" data-reveal>
+        {facts.map((f) => {
+          const inner = (
+            <>
+              <span class="label">{f.label}</span>
+              <span class="fact__v pixel">{f.value}</span>
+              {f.href && (
+                <span class="fact__go mono" aria-hidden="true">
+                  -&gt;
+                </span>
+              )}
+            </>
+          );
+          return (
+            <li>
+              {f.href ? (
+                <a class="fact fact--link" href={f.href}>
+                  {inner}
+                </a>
+              ) : (
+                <div class="fact">{inner}</div>
+              )}
+            </li>
+          );
+        })}
+      </ul>
     </div>
   </div>
 </section>
@@ -81,45 +79,51 @@ const facts = [
     font-weight: 500;
     color: var(--c-text);
   }
-  .about__copy em {
-    font-style: normal;
-    color: var(--c-text);
-    background: var(--c-surface);
-    padding: 0 0.3em;
-  }
-  .about__side {
-    display: grid;
-    gap: var(--s-5);
-    min-width: 0;
-  }
-  .term {
-    padding: var(--s-5) var(--s-6);
-    border: 1px solid var(--c-line-strong);
-    background: var(--c-surface);
-    font-size: var(--fs-sm);
-    line-height: 1.9;
-    overflow-x: auto;
-  }
-  .term p {
-    white-space: pre;
-  }
   .facts {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1px;
+    list-style: none;
+    padding: 0;
     background: var(--c-line);
     border: 1px solid var(--c-line);
   }
+  .facts li {
+    display: grid;
+  }
   .fact {
+    position: relative;
     display: flex;
     flex-direction: column-reverse;
+    justify-content: flex-end;
     gap: var(--s-2);
+    min-height: 7rem;
     padding: var(--s-5);
     background: var(--c-bg);
+    overflow-wrap: anywhere;
   }
-  .fact dd {
+  .fact__v {
     font-size: var(--fs-lg);
-    line-height: 1;
+    line-height: 1.1;
+  }
+  .fact--link {
+    transition: background var(--dur) var(--ease);
+  }
+  .fact--link:hover {
+    background: var(--c-surface);
+  }
+  .fact__go {
+    position: absolute;
+    top: var(--s-4);
+    right: var(--s-4);
+    color: var(--c-muted);
+    transition:
+      transform var(--dur) var(--ease),
+      color var(--dur) var(--ease);
+  }
+  .fact--link:hover .fact__go {
+    color: var(--c-text);
+    transform: translateX(3px);
   }
   @media (max-width: 56rem) {
     .about {

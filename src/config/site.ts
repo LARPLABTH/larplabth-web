@@ -8,7 +8,7 @@ export const site = {
   url: 'https://larplabth.com',
   tagline: 'We build software, tools & devices.',
   description:
-    'LARP LAB TH is an anonymous team of college students from Thailand building SaaS, tools, services and devices — and proving the "you\'re just LARPing" crowd wrong with real work.',
+    'LARP LAB TH is an anonymous team of college students from Thailand building SaaS, tools, services and devices — and helping teams solve hard technical problems.',
   email: 'larplab.th@gmail.com',
   location: 'Thailand',
   foundedYear: 2026,

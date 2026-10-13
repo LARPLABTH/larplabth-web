@@ -11,22 +11,64 @@ const items = await Promise.all(
 <section class="section" id="faq" aria-labelledby="faq-title">
   <div class="container faq">
     <SectionHeader id="faq-title" num="06" label="FAQ" title="Questions, answered." />
-    <div class="faq__list" data-reveal>
-      {items.map(({ data, Content }, i) => (
-        <details class="faq__item" name="faq" open={i === 0}>
+    <div class="faq__list" data-reveal data-faq>
+      {items.map(({ data, Content }) => (
+        <details class="faq__item">
           <summary>
-            <span class="faq__idx label">{String(i + 1).padStart(2, '0')}</span>
             <span class="faq__q">{data.question}</span>
-            <span class="faq__icon mono" aria-hidden="true" />
+            <span class="faq__icon" aria-hidden="true" />
           </summary>
           <div class="faq__a">
-            <Content />
+            <div class="faq__inner">
+              <Content />
+            </div>
           </div>
         </details>
       ))}
     </div>
   </div>
 </section>
+
+<script>
+  // Slide each answer open/closed. Without JS (or with reduced motion) the native
+  // <details> toggle still works, just without the slide.
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const EASE = 'cubic-bezier(0.2, 0.7, 0.2, 1)';
+
+  document.querySelectorAll<HTMLDetailsElement>('[data-faq] .faq__item').forEach((item) => {
+    const summary = item.querySelector('summary')!;
+    const panel = item.querySelector<HTMLElement>('.faq__a')!;
+    let anim: Animation | null = null;
+
+    summary.addEventListener('click', (e) => {
+      e.preventDefault();
+      const opening = !item.open;
+      item.toggleAttribute('data-open', opening);
+
+      if (reduce.matches) {
+        item.open = opening;
+        return;
+      }
+
+      anim?.cancel();
+      if (opening) {
+        item.open = true;
+        anim = panel.animate(
+          { height: ['0px', `${panel.scrollHeight}px`], opacity: [0, 1] },
+          { duration: 300, easing: EASE },
+        );
+      } else {
+        anim = panel.animate(
+          { height: [`${panel.offsetHeight}px`, '0px'], opacity: [1, 0] },
+          { duration: 220, easing: EASE },
+        );
+        anim.onfinish = () => {
+          item.open = false;
+        };
+      }
+    });
+  });
+</script>
 
 <style>
   .faq {
@@ -42,36 +84,58 @@ const items = await Promise.all(
     border-bottom: 1px solid var(--c-line);
   }
   .faq__item summary {
-    display: grid;
-    grid-template-columns: 2.5rem minmax(0, 1fr) auto;
-    align-items: baseline;
-    gap: var(--s-3);
-    padding: var(--s-5) 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-4);
+    padding: var(--s-4) 0;
     cursor: pointer;
     list-style: none;
-    font-size: var(--fs-md);
+    font-size: var(--fs-base);
+    color: var(--c-muted);
+    transition: color var(--dur) var(--ease);
   }
   .faq__item summary::-webkit-details-marker {
     display: none;
   }
-  .faq__item summary:hover .faq__q {
-    text-decoration: underline;
-    text-underline-offset: 4px;
-    text-decoration-color: var(--c-line-strong);
+  .faq__item summary:hover,
+  .faq__item[data-open] summary {
+    color: var(--c-text);
   }
-  .faq__icon::before {
-    content: '[+]';
-    color: var(--c-muted);
+  /* plus → minus */
+  .faq__icon {
+    position: relative;
+    flex: none;
+    width: 0.8rem;
+    height: 0.8rem;
   }
-  .faq__item[open] .faq__icon::before {
-    content: '[-]';
+  .faq__icon::before,
+  .faq__icon::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 100%;
+    height: 1px;
+    background: currentColor;
+    transition: transform 240ms var(--ease);
+  }
+  .faq__icon::after {
+    transform: rotate(90deg);
+  }
+  .faq__item[data-open] .faq__icon::after {
+    transform: rotate(0deg);
   }
   .faq__a {
-    padding: 0 0 var(--s-5) calc(2.5rem + var(--s-3));
+    overflow: hidden;
+  }
+  .faq__inner {
+    padding: 0 var(--s-6) var(--s-5) 0;
     color: var(--c-muted);
+    font-size: var(--fs-sm);
     max-width: 40rem;
   }
-  .faq__a :global(p + p) {
+  .faq__inner :global(p + p) {
     margin-top: var(--s-3);
   }
   @media (max-width: 56rem) {
