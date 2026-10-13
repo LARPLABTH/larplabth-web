@@ -4,11 +4,11 @@ import Button from '../ui/Button.astro';
 import { site } from '../../config/site';
 
 /**
- * Contact form is stubbed until a backend is chosen
- * (e.g. Cloudflare Pages Function + email service, or Formspree).
- * Flip to true once `action`/handler is wired up.
+ * The form posts to the Pages Function in functions/api/contact.ts. It stays hidden (the
+ * decorative terminal shows instead) until `site.contactForm.enabled` is true.
  */
-const FORM_ENABLED = false;
+const FORM_ENABLED = site.contactForm.enabled;
+const siteKey = site.contactForm.turnstileSiteKey;
 const mailto = `mailto:${site.email}?subject=${encodeURIComponent('Project enquiry — via larplabth.com')}`;
 ---
 
@@ -47,23 +47,61 @@ const mailto = `mailto:${site.email}?subject=${encodeURIComponent('Project enqui
         )}
       </div>
 
-      <div class="contact__term mono" data-reveal aria-hidden="true">
-        <p>
-          <span class="muted">$</span> larp contact --new
-        </p>
-        <p class="muted">&gt; name ......... your name</p>
-        <p class="muted">&gt; company ...... optional</p>
-        <p class="muted">&gt; problem ...... what needs solving?</p>
-        <p class="muted">&gt; budget ....... rough range helps</p>
-        <p>
-          <span class="muted">$</span> <span class="cursor"></span>
-        </p>
-      </div>
+      {FORM_ENABLED ? (
+        <form class="form" data-contact-form novalidate data-reveal>
+          <p class="form__title mono">
+            <span class="muted">$</span> larp contact --new
+          </p>
 
-      {FORM_ENABLED && (
-        <form class="contact__form" method="post" action="/api/contact">
-          {/* TODO: fields + handler (Cloudflare Pages Function) */}
+          <label class="field">
+            <span class="field__label mono">name</span>
+            <input name="name" type="text" autocomplete="name" required maxlength="100" />
+          </label>
+          <label class="field">
+            <span class="field__label mono">email</span>
+            <input name="email" type="email" autocomplete="email" required maxlength="200" />
+          </label>
+          <label class="field">
+            <span class="field__label mono">
+              company <em>(optional)</em>
+            </span>
+            <input name="company" type="text" autocomplete="organization" maxlength="120" />
+          </label>
+          <label class="field">
+            <span class="field__label mono">what are we solving?</span>
+            <textarea name="message" rows="5" required minlength="10" maxlength="5000" />
+          </label>
+
+          {/* Honeypot: hidden from people, irresistible to bots. */}
+          <div class="form__trap" aria-hidden="true">
+            <label>
+              Website <input name="website" type="text" tabindex="-1" autocomplete="off" />
+            </label>
+          </div>
+
+          {siteKey && <div class="cf-turnstile" data-sitekey={siteKey} data-theme="auto" />}
+
+          <div class="form__foot">
+            <button class="btn-send mono" type="submit">
+              <span data-send-label>send message</span>
+              <span aria-hidden="true">-&gt;</span>
+            </button>
+            <p class="form__status mono" role="status" aria-live="polite" data-form-status />
+          </div>
         </form>
+      ) : (
+        <div class="contact__term mono" data-reveal aria-hidden="true">
+          <p>
+            <span class="muted">$</span> larp contact --new
+          </p>
+          <p class="muted">&gt; name ......... your name</p>
+          <p class="muted">&gt; company ...... optional</p>
+          <p class="muted">&gt; problem ...... what needs solving?</p>
+          <p class="muted">&gt; budget ....... rough range helps</p>
+          <p>
+            <span class="muted">$</span> <span class="cursor" />
+          </p>
+        </div>
       )}
     </div>
   </div>
@@ -82,6 +120,72 @@ const mailto = `mailto:${site.email}?subject=${encodeURIComponent('Project enqui
       setTimeout(() => label && (label.textContent = 'copy address'), 1800);
     });
   });
+
+  // ---- contact form ----
+  const form = document.querySelector<HTMLFormElement>('[data-contact-form]');
+  if (form) {
+    const status = form.querySelector<HTMLElement>('[data-form-status]')!;
+    const label = form.querySelector<HTMLElement>('[data-send-label]')!;
+    const submit = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+    const MESSAGES: Record<string, string> = {
+      name_required: 'Please enter your name.',
+      email_invalid: 'That email address looks off.',
+      message_too_short: 'Tell us a bit more (at least 10 characters).',
+      captcha_required: 'Please complete the check below.',
+      captcha_failed: 'The check failed — please try again.',
+      not_configured: 'The form is not ready yet — please email us directly.',
+    };
+    const say = (text: string, kind: 'ok' | 'err' | '' = '') => {
+      status.textContent = text;
+      status.dataset.kind = kind;
+    };
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!form.reportValidity()) return;
+      const fd = new FormData(form);
+      const payload = Object.fromEntries(fd.entries());
+      payload.turnstileToken = String(fd.get('cf-turnstile-response') ?? '');
+
+      submit.disabled = true;
+      label.textContent = 'sending…';
+      say('');
+      try {
+        const res = await fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const body = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string };
+        if (res.ok && body.ok) {
+          form.reset();
+          say('Sent. We reply within 12 hours.', 'ok');
+          label.textContent = 'sent ✓';
+          setTimeout(() => (label.textContent = 'send message'), 4000);
+          (window as unknown as { turnstile?: { reset: () => void } }).turnstile?.reset();
+        } else {
+          say(
+            MESSAGES[body.error ?? ''] ?? 'Something went wrong — please email us directly.',
+            'err',
+          );
+          label.textContent = 'send message';
+        }
+      } catch {
+        say('Network error — please try again or email us directly.', 'err');
+        label.textContent = 'send message';
+      } finally {
+        submit.disabled = false;
+      }
+    });
+
+    if (form.querySelector('.cf-turnstile')) {
+      const t = document.createElement('script');
+      t.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
+      t.async = true;
+      t.defer = true;
+      document.head.appendChild(t);
+    }
+  }
 </script>
 
 <style>
@@ -147,6 +251,103 @@ const mailto = `mailto:${site.email}?subject=${encodeURIComponent('Project enqui
   }
   .contact__term p {
     white-space: pre;
+  }
+  /* ---- form ---- */
+  .form {
+    display: grid;
+    gap: var(--s-4);
+    padding: var(--s-6);
+    border: 1px solid var(--c-line-strong);
+    background: var(--c-surface);
+  }
+  .form__title {
+    font-size: var(--fs-sm);
+  }
+  .field {
+    display: grid;
+    gap: var(--s-2);
+  }
+  .field__label {
+    font-size: var(--fs-xs);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--c-muted);
+  }
+  .field__label em {
+    font-style: normal;
+    text-transform: none;
+    letter-spacing: 0;
+    opacity: 0.8;
+  }
+  .field input,
+  .field textarea {
+    width: 100%;
+    padding: 0.7rem 0.8rem;
+    background: var(--c-bg);
+    border: 1px solid var(--c-line-strong);
+    border-radius: var(--radius);
+    font-size: var(--fs-base);
+    transition: border-color var(--dur) var(--ease);
+  }
+  .field textarea {
+    resize: vertical;
+    min-height: 7rem;
+  }
+  .field input:hover,
+  .field textarea:hover {
+    border-color: var(--c-muted);
+  }
+  .field input:focus-visible,
+  .field textarea:focus-visible {
+    outline: none;
+    border-color: var(--c-signal);
+  }
+  .form__trap {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+  .form__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s-4);
+  }
+  .btn-send {
+    display: inline-flex;
+    gap: 0.75rem;
+    padding: 0.8rem 1.1rem;
+    background: var(--c-text);
+    color: var(--c-bg);
+    border: 1px solid var(--c-text);
+    border-radius: var(--radius);
+    font-size: var(--fs-sm);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition:
+      background var(--dur) var(--ease),
+      color var(--dur) var(--ease);
+  }
+  .btn-send:hover:not(:disabled) {
+    background: transparent;
+    color: var(--c-text);
+  }
+  .btn-send:disabled {
+    opacity: 0.6;
+    cursor: progress;
+  }
+  .form__status {
+    font-size: var(--fs-sm);
+    color: var(--c-muted);
+  }
+  .form__status[data-kind='ok'] {
+    color: var(--c-text);
+  }
+  .form__status[data-kind='err'] {
+    color: var(--th-red);
   }
   @media (max-width: 56rem) {
     .contact__grid {

@@ -13,6 +13,12 @@ export const site = {
   location: 'Thailand',
   foundedYear: 2026,
   ogImage: '/og-default.png',
+  contactForm: {
+    // Turn on only after RESEND_API_KEY is set in Cloudflare (see functions/api/contact.ts).
+    enabled: false,
+    // Public Turnstile site key (safe to commit). Leave empty to skip the captcha widget.
+    turnstileSiteKey: '',
+  },
   socials: [{ label: 'GitHub', href: 'https://github.com/LARPLABTH' }] as {
     label: string;
     href: string;
