@@ -1,0 +1,17 @@
+{
+  // Cloudflare Worker: serves dist/ as static assets + handles POST /api/contact.
+  // `name` must match the Worker's name in the Cloudflare dashboard.
+  "name": "larplabth-web",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-10-14",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+  },
+  // Non-secret settings. RESEND_API_KEY / TURNSTILE_SECRET are secrets: set them in the dashboard.
+  "vars": {
+    "CONTACT_TO": "larplab.th@gmail.com",
+    "CONTACT_FROM": "LARP LAB TH <contact@larplabth.com>",
+  },
+}

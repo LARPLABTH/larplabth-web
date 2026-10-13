@@ -26,3 +26,7 @@ pnpm-debug.log*
 # editor / tooling
 .vscode/
 .claude/
+
+# Cloudflare / wrangler
+.wrangler/
+.dev.vars

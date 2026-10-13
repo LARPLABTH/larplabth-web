@@ -82,38 +82,38 @@ The site is live at **https://larplabth.com** (the bare domain is canonical; the
 
 `public/_headers` adds security headers and long-term caching for hashed `/_astro/*` assets.
 
-## Contact form (Cloudflare Pages Function + Resend)
+## Contact form (Cloudflare Worker + Resend)
 
-`functions/api/contact.ts` receives the form, checks it (honeypot, optional Turnstile), and emails
-`larplab.th@gmail.com` through Resend. The form UI in `Contact.astro` is hidden until
-`site.contactForm.enabled` is `true` in `src/config/site.ts`.
+The site is a Cloudflare **Worker with static assets** (`wrangler.jsonc`): `dist/` is served as files, and
+`worker/index.ts` handles `POST /api/contact`. `worker/contact.ts` checks the form (honeypot, optional
+Turnstile) and emails `larplab.th@gmail.com` through Resend. The form UI in `Contact.astro` is hidden
+until `site.contactForm.enabled` is `true` in `src/config/site.ts`.
+
+`wrangler.jsonc` → `name` must match the Worker's name in the Cloudflare dashboard.
 
 **Secrets live only in Cloudflare — never commit them (this repo is public).**
-Cloudflare → Workers & Pages → `larplabth-web` → Settings → Variables and Secrets (Production):
+Cloudflare → Workers & Pages → the Worker → Settings → Variables and Secrets:
 
-| Name               | Type   | Notes                                                   |
-| ------------------ | ------ | ------------------------------------------------------- |
-| `RESEND_API_KEY`   | Secret | required                                                |
-| `TURNSTILE_SECRET` | Secret | optional; if set, a valid Turnstile token is required   |
-| `CONTACT_TO`       | Text   | optional, default `larplab.th@gmail.com`                |
-| `CONTACT_FROM`     | Text   | optional, default `LARP LAB TH <onboarding@resend.dev>` |
+| Name               | Type   | Where                                                                   |
+| ------------------ | ------ | ----------------------------------------------------------------------- |
+| `RESEND_API_KEY`   | Secret | dashboard — required                                                    |
+| `TURNSTILE_SECRET` | Secret | dashboard — optional; if set, a valid Turnstile token is required       |
+| `CONTACT_TO`       | Text   | `wrangler.jsonc` (`larplab.th@gmail.com`)                               |
+| `CONTACT_FROM`     | Text   | `wrangler.jsonc` (`contact@larplabth.com`, a domain verified in Resend) |
 
 Notes:
 
-- With the default `onboarding@resend.dev` sender, Resend only delivers to the email address of the
-  Resend account owner. To send from `@larplabth.com`, verify the domain in Resend (it can add the DNS
-  records in Cloudflare automatically), then set `CONTACT_FROM`.
 - Turnstile: Cloudflare dashboard → Turnstile → add a widget for `larplabth.com`. Put the **site key**
   in `site.contactForm.turnstileSiteKey` (public) and the **secret key** in `TURNSTILE_SECRET`.
-- New variables apply on the next deployment — redeploy after adding them.
-- The function is not run by `npm run dev`; test the live site, or use `npx wrangler pages dev dist`.
+- Secrets added in the dashboard persist across deployments.
+- Local check of the Worker: `npm run build && npx wrangler dev` (then http://localhost:8787).
 
 ## TODO (content phase)
 
 - [x] Logo v1 (custom wordmark + `<L/>` mark)
 - [ ] Team profiles (team is anonymous for now)
 - [x] FAQ answers (8 questions)
-- [ ] Contact form: add Cloudflare secrets, then set `contactForm.enabled = true` (code is done)
+- [ ] Contact form: add Cloudflare secrets, then set `contactForm.enabled = true` (code is done; Resend domain verified)
 - [ ] Thai version, after the first project is added
 - [ ] Lab projects
 - [ ] Confirm the Stack list

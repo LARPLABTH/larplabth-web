@@ -1,28 +1,25 @@
 /**
- * POST /api/contact — Cloudflare Pages Function.
+ * POST /api/contact — called from worker/index.ts.
  *
  * Receives the contact form, checks it, and emails it to the team through Resend.
- * Secrets are set in Cloudflare (Pages → Settings → Variables and Secrets), never in the repo:
+ * Secrets are set in Cloudflare (Worker → Settings → Variables and Secrets), never in the repo:
  *   RESEND_API_KEY     (required, secret)
  *   TURNSTILE_SECRET   (optional, secret — if set, a valid Turnstile token is required)
- *   CONTACT_TO         (optional — default larplab.th@gmail.com)
- *   CONTACT_FROM       (optional — default "LARP LAB TH <onboarding@resend.dev>"; use a
- *                       verified larplabth.com address once the domain is verified in Resend)
+ * Plain variables live in wrangler.jsonc: CONTACT_TO, CONTACT_FROM (a verified larplabth.com address).
  */
 
-interface Env {
+export interface ContactEnv {
   RESEND_API_KEY?: string;
   TURNSTILE_SECRET?: string;
   CONTACT_TO?: string;
   CONTACT_FROM?: string;
 }
 
-interface Context {
-  request: Request;
-  env: Env;
-}
-
-const ALLOWED_ORIGINS = new Set(['https://larplabth.com', 'http://localhost:4321']);
+const ALLOWED_ORIGINS = new Set([
+  'https://larplabth.com',
+  'http://localhost:4321',
+  'http://localhost:8787',
+]);
 
 const json = (body: Record<string, unknown>, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -39,7 +36,7 @@ const oneLine = (s: string, max: number) =>
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
-export const onRequestPost = async ({ request, env }: Context): Promise<Response> => {
+export const handleContact = async (request: Request, env: ContactEnv): Promise<Response> => {
   const origin = request.headers.get('origin');
   if (origin && !ALLOWED_ORIGINS.has(origin)) return json({ ok: false, error: 'forbidden' }, 403);
 
@@ -99,6 +96,5 @@ export const onRequestPost = async ({ request, env }: Context): Promise<Response
   return json({ ok: true });
 };
 
-/** Anything but POST. */
-export const onRequest = async (): Promise<Response> =>
+export const methodNotAllowed = (): Response =>
   json({ ok: false, error: 'method_not_allowed' }, 405);
