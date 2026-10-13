@@ -17,7 +17,7 @@ export const site = {
     // Needs RESEND_API_KEY set as a secret on the Worker (see worker/contact.ts).
     enabled: true,
     // Public Turnstile site key (safe to commit). Leave empty to skip the captcha widget.
-    turnstileSiteKey: '',
+    turnstileSiteKey: '0x4AAAAAAFVzmMoNyDMoGUSk',
   },
   socials: [{ label: 'GitHub', href: 'https://github.com/LARPLABTH' }] as {
     label: string;
