@@ -1,0 +1,64 @@
+---
+interface Props {
+  href: string;
+  variant?: 'primary' | 'ghost';
+  external?: boolean;
+  class?: string;
+}
+const { href, variant = 'primary', external = false, class: className } = Astro.props;
+---
+
+<a
+  href={href}
+  class:list={['btn', `btn--${variant}`, className]}
+  {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+>
+  <span>
+    <slot />
+  </span>
+  <span class="btn__arrow" aria-hidden="true">
+    -&gt;
+  </span>
+</a>
+
+<style>
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.8rem 1.1rem;
+    border: 1px solid var(--c-text);
+    border-radius: var(--radius);
+    font-family: var(--f-mono);
+    font-size: var(--fs-sm);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    transition:
+      background var(--dur) var(--ease),
+      color var(--dur) var(--ease),
+      border-color var(--dur) var(--ease);
+  }
+  .btn__arrow {
+    transition: transform var(--dur) var(--ease);
+  }
+  .btn:hover .btn__arrow {
+    transform: translateX(3px);
+  }
+  .btn--primary {
+    background: var(--c-text);
+    color: var(--c-bg);
+  }
+  .btn--primary:hover {
+    background: transparent;
+    color: var(--c-text);
+  }
+  .btn--ghost {
+    border-color: var(--c-line-strong);
+    color: var(--c-text);
+  }
+  .btn--ghost:hover {
+    border-color: var(--c-text);
+    background: var(--c-surface);
+  }
+</style>

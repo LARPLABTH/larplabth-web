@@ -1,0 +1,83 @@
+---
+import { getCollection, render } from 'astro:content';
+import SectionHeader from '../ui/SectionHeader.astro';
+
+const entries = (await getCollection('faq')).sort((a, b) => a.data.order - b.data.order);
+const items = await Promise.all(
+  entries.map(async (e) => ({ ...e, Content: (await render(e)).Content })),
+);
+---
+
+<section class="section" id="faq" aria-labelledby="faq-title">
+  <div class="container faq">
+    <SectionHeader id="faq-title" num="06" label="FAQ" title="Questions, answered." />
+    <div class="faq__list" data-reveal>
+      {items.map(({ data, Content }, i) => (
+        <details class="faq__item" name="faq" open={i === 0}>
+          <summary>
+            <span class="faq__idx label">{String(i + 1).padStart(2, '0')}</span>
+            <span class="faq__q">{data.question}</span>
+            <span class="faq__icon mono" aria-hidden="true" />
+          </summary>
+          <div class="faq__a">
+            <Content />
+          </div>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .faq {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    gap: var(--s-7);
+    align-items: start;
+  }
+  .faq__list {
+    border-top: 1px solid var(--c-line);
+  }
+  .faq__item {
+    border-bottom: 1px solid var(--c-line);
+  }
+  .faq__item summary {
+    display: grid;
+    grid-template-columns: 2.5rem minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: var(--s-3);
+    padding: var(--s-5) 0;
+    cursor: pointer;
+    list-style: none;
+    font-size: var(--fs-md);
+  }
+  .faq__item summary::-webkit-details-marker {
+    display: none;
+  }
+  .faq__item summary:hover .faq__q {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    text-decoration-color: var(--c-line-strong);
+  }
+  .faq__icon::before {
+    content: '[+]';
+    color: var(--c-muted);
+  }
+  .faq__item[open] .faq__icon::before {
+    content: '[-]';
+  }
+  .faq__a {
+    padding: 0 0 var(--s-5) calc(2.5rem + var(--s-3));
+    color: var(--c-muted);
+    max-width: 40rem;
+  }
+  .faq__a :global(p + p) {
+    margin-top: var(--s-3);
+  }
+  @media (max-width: 56rem) {
+    .faq {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0;
+    }
+  }
+</style>

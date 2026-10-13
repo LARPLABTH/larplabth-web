@@ -1,0 +1,96 @@
+---
+import Logo from '../brand/Logo.astro';
+import { nav, site } from '../../config/site';
+
+// Easter egg: the team name in 8-bit binary.
+const binary = [...'LARP LAB TH']
+  .map((c) => c.charCodeAt(0).toString(2).padStart(8, '0'))
+  .join(' ');
+const year = new Date().getFullYear();
+---
+
+<footer class="ftr">
+  <div class="ftr__bits mono" aria-hidden="true">
+    <span>
+      {binary} {binary} {binary}
+    </span>
+  </div>
+  <div class="container ftr__inner">
+    <div class="ftr__brand">
+      <Logo />
+      <p class="muted">{site.tagline}</p>
+    </div>
+    <nav aria-label="Footer">
+      <ul class="ftr__nav">
+        {nav.map((item) => (
+          <li>
+            <a href={`/${item.href}`}>{item.label}</a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+    <div class="ftr__meta label">
+      <span>
+        © {year} {site.name}
+      </span>
+      <span>{site.location}</span>
+      <a href={`mailto:${site.email}`}>{site.email}</a>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .ftr {
+    border-top: 1px solid var(--c-line);
+    padding-bottom: calc(var(--s-6) + env(safe-area-inset-bottom, 0px));
+  }
+  .ftr__bits {
+    overflow: hidden;
+    white-space: nowrap;
+    padding-block: var(--s-3);
+    border-bottom: 1px solid var(--c-line);
+    font-size: var(--fs-xs);
+    color: var(--c-line-strong);
+    letter-spacing: 0.1em;
+  }
+  .ftr__inner {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: var(--s-7) var(--s-6);
+    padding-top: var(--s-8);
+  }
+  .ftr__brand {
+    display: grid;
+    gap: var(--s-3);
+    align-content: start;
+  }
+  .ftr__nav {
+    list-style: none;
+    padding: 0;
+    columns: 2;
+    font-size: var(--fs-sm);
+  }
+  .ftr__nav li {
+    padding-block: 0.2rem;
+  }
+  .ftr__nav a {
+    color: var(--c-muted);
+  }
+  .ftr__nav a:hover,
+  .ftr__meta a:hover {
+    color: var(--c-text);
+  }
+  .ftr__meta {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2) var(--s-6);
+    padding-top: var(--s-5);
+    border-top: 1px solid var(--c-line);
+  }
+  @media (max-width: 40rem) {
+    .ftr__inner {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

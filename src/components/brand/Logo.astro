@@ -1,0 +1,78 @@
+---
+/**
+ * PLACEHOLDER LOGO — swap this single file when the real logo is ready.
+ * - mark:     8×8 pixel "L" with a cursor block (also used as favicon)
+ * - wordmark: LARP_LAB in the pixel font with a blinking cursor
+ */
+interface Props {
+  variant?: 'full' | 'mark' | 'wordmark';
+  size?: number; // mark size in px
+  class?: string;
+}
+const { variant = 'full', size = 22, class: className } = Astro.props;
+
+// 8×8 grid: "L" stroke (2px wide) + a cursor block on the right.
+const MARK = [
+  'XX......',
+  'XX......',
+  'XX......',
+  'XX......',
+  'XX......',
+  'XXXXX.XX',
+  'XXXXX.XX',
+  '........',
+];
+const pixels = MARK.flatMap((row, y) =>
+  [...row].map((c, x) => (c === 'X' ? { x, y } : null)).filter((p) => p !== null),
+);
+---
+
+<span class:list={['logo', `logo--${variant}`, className]}>
+  {variant !== 'wordmark' && (
+    <svg
+      class="logo__mark"
+      width={size}
+      height={size}
+      viewBox="0 0 8 8"
+      shape-rendering="crispEdges"
+      aria-hidden="true"
+    >
+      {pixels.map((p) => (
+        <rect x={p.x} y={p.y} width="1" height="1" fill="currentColor" />
+      ))}
+    </svg>
+  )}
+  {variant !== 'mark' && (
+    <span class="logo__word pixel">
+      LARP<span class="logo__us">_</span>LAB<sup class="logo__th mono">TH</sup>
+    </span>
+  )}
+</span>
+
+<style>
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: var(--c-text);
+    line-height: 1;
+  }
+  .logo__mark {
+    flex: none;
+  }
+  .logo__word {
+    font-size: 1.05rem;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+  .logo__us {
+    animation: blink 1.05s steps(1) infinite;
+  }
+  .logo__th {
+    font-size: 0.55em;
+    margin-left: 0.25em;
+    letter-spacing: 0.08em;
+    color: var(--c-muted);
+    vertical-align: super;
+  }
+</style>

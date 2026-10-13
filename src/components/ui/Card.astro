@@ -1,0 +1,87 @@
+---
+interface Props {
+  index?: string;
+  code?: string;
+  title: string;
+  class?: string;
+}
+const { index, code, title, class: className } = Astro.props;
+---
+
+<article class:list={['card', className]} data-scramble-trigger data-reveal>
+  {(index || code) && (
+    <p class="card__meta label">
+      {index && <span>{index}</span>}
+      {code && (
+        <span class="card__code" data-scramble>
+          ./{code}
+        </span>
+      )}
+    </p>
+  )}
+  <h3 class="card__title">{title}</h3>
+  <div class="card__body">
+    <slot />
+  </div>
+  <span class="card__px" aria-hidden="true"></span>
+</article>
+
+<style>
+  .card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-4);
+    padding: var(--s-6);
+    background: var(--c-bg);
+    min-height: 16rem;
+    transition: background var(--dur) var(--ease);
+  }
+  .card:hover {
+    background: var(--c-surface);
+  }
+  .card__meta {
+    display: flex;
+    justify-content: space-between;
+  }
+  .card__code {
+    color: var(--c-text);
+  }
+  .card__title {
+    font-size: var(--fs-lg);
+    margin-top: var(--s-6);
+  }
+  .card__body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    color: var(--c-muted);
+    font-size: var(--fs-sm);
+  }
+  /* trailing meta (e.g. tags) sticks to the bottom so rows line up */
+  .card__body > :global(:last-child:not(:first-child)) {
+    margin-top: auto;
+    padding-top: var(--s-4);
+  }
+  /* pixel corner that "lights up" on hover */
+  .card__px {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 8px;
+    height: 8px;
+    background: var(--c-line-strong);
+    box-shadow:
+      -8px 0 0 transparent,
+      0 8px 0 transparent;
+    transition:
+      background var(--dur) var(--ease),
+      box-shadow var(--dur) var(--ease);
+  }
+  .card:hover .card__px {
+    background: var(--c-signal);
+    box-shadow:
+      -8px 0 0 var(--c-line-strong),
+      0 8px 0 var(--c-line-strong);
+  }
+</style>

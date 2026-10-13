@@ -1,0 +1,64 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Button from '../components/ui/Button.astro';
+---
+
+<BaseLayout title="404 Not found" noindex>
+  <section class="nf dot-grid">
+    <div class="container nf__inner">
+      <p class="nf__code pixel" aria-hidden="true">
+        404
+      </p>
+      <div class="nf__term mono">
+        <p>
+          <span class="muted">$</span> cd <span data-path>/this-page</span>
+        </p>
+        <p class="muted">larp: no such file or directory</p>
+        <p>
+          <span class="muted">$</span> larp --help
+        </p>
+        <p class="muted">&gt; try: cd ~ (home)</p>
+        <p>
+          <span class="muted">$</span> <span class="cursor"></span>
+        </p>
+      </div>
+      <h1 class="sr-only">Page not found</h1>
+      <Button href="/">Back to home</Button>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const el = document.querySelector<HTMLElement>('[data-path]');
+  if (el) el.textContent = decodeURIComponent(location.pathname).slice(0, 48);
+</script>
+
+<style>
+  .nf {
+    min-height: calc(100dvh - var(--header-h) - 12rem);
+    display: grid;
+    align-items: center;
+    padding-block: var(--s-9);
+  }
+  .nf__inner {
+    display: grid;
+    gap: var(--s-6);
+    justify-items: start;
+  }
+  .nf__code {
+    font-size: clamp(5rem, 3rem + 12vw, 12rem);
+    line-height: 0.9;
+  }
+  .nf__term {
+    font-size: var(--fs-sm);
+    line-height: 1.9;
+    padding: var(--s-5) var(--s-6);
+    border: 1px solid var(--c-line-strong);
+    background: var(--c-surface);
+    width: min(100%, 32rem);
+    overflow-x: auto;
+  }
+  .nf__term p {
+    white-space: pre;
+  }
+</style>

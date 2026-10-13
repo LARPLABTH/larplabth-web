@@ -1,0 +1,156 @@
+---
+import SectionHeader from '../ui/SectionHeader.astro';
+import Button from '../ui/Button.astro';
+import { site } from '../../config/site';
+
+/**
+ * Contact form is stubbed until a backend is chosen
+ * (e.g. Cloudflare Pages Function + email service, or Formspree).
+ * Flip to true once `action`/handler is wired up.
+ */
+const FORM_ENABLED = false;
+const mailto = `mailto:${site.email}?subject=${encodeURIComponent('Project enquiry — via larplabth.com')}`;
+---
+
+<section class="section contact" id="contact" aria-labelledby="contact-title">
+  <div class="container">
+    <SectionHeader
+      id="contact-title"
+      num="07"
+      label="Contact"
+      title="Got a problem worth solving?"
+      lead="Tell us what you're building or what's broken. We reply to every message."
+    />
+
+    <div class="contact__grid">
+      <div class="contact__direct" data-reveal>
+        <p class="label">Email</p>
+        <p class="contact__email">
+          <a href={mailto}>{site.email}</a>
+        </p>
+        <div class="contact__actions">
+          <Button href={mailto}>Send an email</Button>
+          <button class="copy mono" type="button" data-copy={site.email}>
+            <span data-copy-label>copy address</span>
+          </button>
+        </div>
+        {site.socials.length > 0 && (
+          <ul class="socials">
+            {site.socials.map((s) => (
+              <li>
+                <a href={s.href} target="_blank" rel="noopener noreferrer">
+                  {s.label} ↗
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <div class="contact__term mono" data-reveal aria-hidden="true">
+        <p>
+          <span class="muted">$</span> larp contact --new
+        </p>
+        <p class="muted">&gt; name ......... your name</p>
+        <p class="muted">&gt; company ...... optional</p>
+        <p class="muted">&gt; problem ...... what needs solving?</p>
+        <p class="muted">&gt; budget ....... rough range helps</p>
+        <p>
+          <span class="muted">$</span> <span class="cursor"></span>
+        </p>
+      </div>
+
+      {FORM_ENABLED && (
+        <form class="contact__form" method="post" action="/api/contact">
+          {/* TODO: fields + handler (Cloudflare Pages Function) */}
+        </form>
+      )}
+    </div>
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((btn) => {
+    const label = btn.querySelector<HTMLElement>('[data-copy-label]');
+    btn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(btn.dataset.copy ?? '');
+        if (label) label.textContent = 'copied ✓';
+      } catch {
+        if (label) label.textContent = 'copy failed';
+      }
+      setTimeout(() => label && (label.textContent = 'copy address'), 1800);
+    });
+  });
+</script>
+
+<style>
+  .contact__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--s-7);
+    align-items: start;
+  }
+  .contact__direct {
+    display: grid;
+    gap: var(--s-4);
+  }
+  .contact__email {
+    font-size: var(--fs-xl);
+    letter-spacing: -0.02em;
+    overflow-wrap: anywhere;
+  }
+  .contact__email a {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0% 1px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    transition: background-size 300ms var(--ease);
+  }
+  .contact__email a:hover {
+    background-size: 100% 1px;
+  }
+  .contact__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-3);
+    align-items: center;
+  }
+  .copy {
+    background: none;
+    border: 0;
+    padding: 0.8rem 0.4rem;
+    font-size: var(--fs-sm);
+    color: var(--c-muted);
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  .copy:hover {
+    color: var(--c-text);
+  }
+  .socials {
+    display: flex;
+    gap: var(--s-5);
+    list-style: none;
+    padding: 0;
+    font-family: var(--f-mono);
+    font-size: var(--fs-sm);
+  }
+  .contact__term {
+    padding: var(--s-5) var(--s-6);
+    border: 1px solid var(--c-line-strong);
+    background: var(--c-surface);
+    font-size: var(--fs-sm);
+    line-height: 1.9;
+    overflow-x: auto;
+  }
+  .contact__term p {
+    white-space: pre;
+  }
+  @media (max-width: 56rem) {
+    .contact__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

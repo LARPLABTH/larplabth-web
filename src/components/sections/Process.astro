@@ -1,0 +1,99 @@
+---
+import { getCollection } from 'astro:content';
+import SectionHeader from '../ui/SectionHeader.astro';
+
+const steps = (await getCollection('process')).sort((a, b) => a.data.order - b.data.order);
+---
+
+<section class="section dot-grid" id="process" aria-labelledby="process-title">
+  <div class="container process">
+    <SectionHeader
+      id="process-title"
+      num="02"
+      label="How we work"
+      title="From problem to shipped."
+      lead="Short loops, working software early, no black boxes. You always know what we're running."
+    />
+    <ol class="log">
+      {steps.map((s, i) => (
+        <li class="log__step" data-reveal data-scramble-trigger>
+          <p class="log__cmd mono">
+            <span class="log__idx">[{String(i + 1).padStart(2, '0')}]</span>
+            <span class="log__ps">$</span>
+            <span data-scramble>larp {s.data.command}</span>
+          </p>
+          <div class="log__body">
+            <h3>{s.data.title}</h3>
+            <p>{s.data.summary}</p>
+          </div>
+          <p class="log__status label" aria-hidden="true">
+            {i < steps.length - 1 ? '-> next' : '✓ done'}
+          </p>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>
+
+<style>
+  .process {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    gap: var(--s-7);
+    align-items: start;
+  }
+  .process > :global(.sh) {
+    position: sticky;
+    top: calc(var(--header-h) + var(--s-6));
+  }
+  .log {
+    list-style: none;
+    padding: 0;
+    border: 1px solid var(--c-line);
+    background: var(--c-bg);
+  }
+  .log__step {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--s-3) var(--s-5);
+    padding: var(--s-6);
+    border-bottom: 1px solid var(--c-line);
+  }
+  .log__step:last-child {
+    border-bottom: 0;
+  }
+  .log__cmd {
+    grid-column: 1 / -1;
+    font-size: var(--fs-sm);
+    display: flex;
+    gap: 1ch;
+  }
+  .log__idx,
+  .log__ps {
+    color: var(--c-muted);
+  }
+  .log__body {
+    display: grid;
+    gap: var(--s-2);
+  }
+  .log__body h3 {
+    font-size: var(--fs-lg);
+  }
+  .log__body p {
+    color: var(--c-muted);
+    font-size: var(--fs-sm);
+    max-width: 34rem;
+  }
+  .log__status {
+    align-self: end;
+  }
+  @media (max-width: 56rem) {
+    .process {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0;
+    }
+    .process > :global(.sh) {
+      position: static;
+    }
+  }
+</style>

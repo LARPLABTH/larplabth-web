@@ -1,0 +1,63 @@
+---
+import { getCollection } from 'astro:content';
+import SectionHeader from '../ui/SectionHeader.astro';
+import Card from '../ui/Card.astro';
+
+const services = (await getCollection('services')).sort((a, b) => a.data.order - b.data.order);
+---
+
+<section class="section" id="services" aria-labelledby="services-title">
+  <div class="container">
+    <SectionHeader
+      id="services-title"
+      num="01"
+      label="What we do"
+      title="Six ways we build."
+      lead="Software, hardware and the space between. One team that can take an idea from whiteboard to working product."
+    />
+    <div class="grid">
+      {services.map((s) => (
+        <Card index={String(s.data.order).padStart(2, '0')} code={s.data.code} title={s.data.title}>
+          <p>{s.data.summary}</p>
+          {s.data.tags.length > 0 && (
+            <ul class="tags mono">
+              {s.data.tags.map((t) => (
+                <li>#{t}</li>
+              ))}
+            </ul>
+          )}
+        </Card>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1px;
+    background: var(--c-line);
+    border: 1px solid var(--c-line);
+  }
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.9rem;
+    list-style: none;
+    padding: 0;
+    font-size: var(--fs-xs);
+    color: var(--c-muted);
+    opacity: 0.8;
+  }
+  @media (max-width: 64rem) {
+    .grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 40rem) {
+    .grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

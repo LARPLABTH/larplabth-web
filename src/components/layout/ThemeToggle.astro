@@ -1,0 +1,92 @@
+---
+/** Toggles data-theme on <html>; persists the choice. Initial theme is set inline in BaseLayout. */
+---
+
+<button class="theme-toggle" type="button" data-theme-toggle aria-label="Toggle colour theme">
+  <svg viewBox="0 0 8 8" width="16" height="16" shape-rendering="crispEdges" aria-hidden="true">
+    <rect
+      x="0.5"
+      y="0.5"
+      width="7"
+      height="7"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1"
+    ></rect>
+    <rect class="theme-toggle__fill" x="1" y="1" width="3" height="6" fill="currentColor"></rect>
+  </svg>
+  <span class="theme-toggle__label label" data-theme-label>
+    dark
+  </span>
+</button>
+
+<script>
+  const root = document.documentElement;
+  const KEY = 'theme';
+
+  function sync() {
+    const theme = root.dataset.theme === 'light' ? 'light' : 'dark';
+    document.querySelectorAll<HTMLElement>('[data-theme-label]').forEach((el) => {
+      el.textContent = theme;
+    });
+    document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]').forEach((btn) => {
+      btn.setAttribute('aria-pressed', String(theme === 'light'));
+    });
+    const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+    if (meta) meta.content = theme === 'light' ? '#f2f1ec' : '#0f0f0f';
+  }
+
+  document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      root.dataset.theme = root.dataset.theme === 'light' ? 'dark' : 'light';
+      try {
+        localStorage.setItem(KEY, root.dataset.theme);
+      } catch {
+        /* storage unavailable — choice lasts for this page view */
+      }
+      sync();
+    });
+  });
+
+  // Follow the OS while the visitor hasn't chosen explicitly.
+  window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', (e) => {
+    let stored: string | null = null;
+    try {
+      stored = localStorage.getItem(KEY);
+    } catch {
+      /* ignore */
+    }
+    if (stored) return;
+    root.dataset.theme = e.matches ? 'light' : 'dark';
+    sync();
+  });
+
+  sync();
+</script>
+
+<style>
+  .theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.5rem;
+    background: none;
+    border: 1px solid transparent;
+    border-radius: var(--radius);
+    color: var(--c-text);
+    cursor: pointer;
+  }
+  .theme-toggle:hover {
+    border-color: var(--c-line-strong);
+  }
+  .theme-toggle__fill {
+    transition: transform var(--dur) var(--ease);
+  }
+  :global(:root[data-theme='light']) .theme-toggle__fill {
+    transform: translateX(3px);
+  }
+  .theme-toggle__label {
+    min-width: 5ch;
+    text-align: left;
+  }
+</style>

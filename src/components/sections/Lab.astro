@@ -1,0 +1,140 @@
+---
+import { getCollection } from 'astro:content';
+import SectionHeader from '../ui/SectionHeader.astro';
+
+const projects = (await getCollection('projects', (p) => !p.data.draft)).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+
+/** Deterministic, mirrored 10×10 pixel "identicon" from a string — placeholder art. */
+function identicon(input: string, size = 10): { x: number; y: number }[] {
+  let h = 2166136261;
+  for (const ch of input) h = Math.imul(h ^ ch.charCodeAt(0), 16777619);
+  const rand = () => {
+    h ^= h << 13;
+    h ^= h >>> 17;
+    h ^= h << 5;
+    return (h >>> 0) / 4294967296;
+  };
+  const half = Math.ceil(size / 2);
+  const cells: { x: number; y: number }[] = [];
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < half; x++) {
+      if (rand() > 0.55) {
+        cells.push({ x, y });
+        if (x !== size - 1 - x) cells.push({ x: size - 1 - x, y });
+      }
+    }
+  }
+  return cells;
+}
+
+const statusLabel = {
+  'coming-soon': 'Coming soon',
+  'in-progress': 'In progress',
+  shipped: 'Shipped',
+};
+---
+
+<section class="section" id="lab" aria-labelledby="lab-title">
+  <div class="container">
+    <SectionHeader
+      id="lab-title"
+      num="03"
+      label="Lab"
+      title="Things we're building."
+      lead="Products, experiments and client work. The first entries are in the oven."
+    />
+    <ul class="lab">
+      {projects.map((p) => {
+        const tile = (
+          <>
+            <div class="lab__art">
+              <svg viewBox="0 0 10 10" shape-rendering="crispEdges" aria-hidden="true">
+                {identicon(p.id).map((c) => (
+                  <rect x={c.x} y={c.y} width="1" height="1" fill="currentColor" />
+                ))}
+              </svg>
+            </div>
+            <div class="lab__meta">
+              <p class="label">
+                <span>{p.data.category}</span>
+                <span class="lab__status">{statusLabel[p.data.status]}</span>
+              </p>
+              <h3 class="mono">{p.data.title}</h3>
+              <p class="muted">{p.data.summary}</p>
+            </div>
+          </>
+        );
+        return (
+          <li class="lab__item" data-reveal>
+            {p.data.href ? (
+              <a class="lab__tile" href={p.data.href} target="_blank" rel="noopener noreferrer">
+                {tile}
+              </a>
+            ) : (
+              <div class="lab__tile">{tile}</div>
+            )}
+          </li>
+        );
+      })}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .lab {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--s-5);
+    list-style: none;
+    padding: 0;
+  }
+  .lab__tile {
+    display: grid;
+    gap: var(--s-4);
+    height: 100%;
+  }
+  .lab__art {
+    aspect-ratio: 4 / 3;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--c-line);
+    background: var(--c-surface);
+    color: var(--c-line-strong);
+    transition: color 400ms var(--ease);
+  }
+  .lab__art svg {
+    width: 38%;
+  }
+  .lab__tile:hover .lab__art {
+    color: var(--c-text);
+  }
+  .lab__meta {
+    display: grid;
+    gap: var(--s-2);
+  }
+  .lab__meta .label {
+    display: flex;
+    justify-content: space-between;
+  }
+  .lab__status::before {
+    content: '● ';
+  }
+  .lab__meta h3 {
+    font-size: var(--fs-md);
+    font-weight: 500;
+  }
+  .lab__meta p:last-child {
+    font-size: var(--fs-sm);
+  }
+  @media (max-width: 56rem) {
+    .lab {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .lab__tile {
+      grid-template-columns: 9rem minmax(0, 1fr);
+      align-items: center;
+    }
+  }
+</style>

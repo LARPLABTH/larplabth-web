@@ -1,0 +1,64 @@
+---
+/** Infinite pixel-font marquee of disciplines. Static under reduced motion. */
+const items = ['SaaS', 'Tools', 'Services', 'Devices', 'Maker', 'Consulting', 'Problem solving'];
+---
+
+<div class="ticker" aria-hidden="true">
+  <div class="ticker__track">
+    {[0, 1].map(() => (
+      <ul class="ticker__group pixel">
+        {items.map((item) => (
+          <li>
+            {item}
+            <span class="ticker__sep">■</span>
+          </li>
+        ))}
+      </ul>
+    ))}
+  </div>
+</div>
+
+<style>
+  .ticker {
+    overflow: hidden;
+    border-block: 1px solid var(--c-line);
+    padding-block: var(--s-4);
+    mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  }
+  .ticker__track {
+    display: flex;
+    width: max-content;
+    animation: ticker 38s linear infinite;
+  }
+  .ticker:hover .ticker__track {
+    animation-play-state: paused;
+  }
+  .ticker__group {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    font-size: clamp(1.25rem, 1rem + 1.2vw, 2rem);
+    text-transform: uppercase;
+    color: var(--c-muted);
+  }
+  .ticker__group li {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+  }
+  .ticker__sep {
+    font-size: 0.4em;
+    margin-inline: 1.2em;
+    color: var(--c-line-strong);
+  }
+  @keyframes ticker {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ticker__track {
+      animation: none;
+    }
+  }
+</style>

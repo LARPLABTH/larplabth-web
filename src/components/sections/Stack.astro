@@ -1,0 +1,108 @@
+---
+import SectionHeader from '../ui/SectionHeader.astro';
+
+// DRAFT — confirm with the team. Order matters (rendered top → bottom).
+const stack = [
+  { area: 'Web & SaaS', tools: ['TypeScript', 'Node.js', 'React', 'Astro', 'PostgreSQL'] },
+  { area: 'Mobile', tools: ['React Native', 'Flutter', 'PWA'] },
+  { area: 'Cloud & DevOps', tools: ['Docker', 'Cloudflare', 'AWS', 'CI/CD'] },
+  { area: 'Embedded & IoT', tools: ['C/C++', 'ESP32', 'STM32', 'MQTT'] },
+  { area: 'AI & Data', tools: ['Python', 'LLM integration', 'Computer vision'] },
+  { area: 'Fabrication', tools: ['CAD', '3D printing', 'PCB design', 'Laser cutting'] },
+];
+---
+
+<section class="section" id="stack" aria-labelledby="stack-title">
+  <div class="container">
+    <SectionHeader
+      id="stack-title"
+      num="04"
+      label="Stack"
+      title="What's on the bench."
+      lead="We pick tools for the problem, not the other way around. A snapshot of what we reach for most."
+    />
+    <div class="table-wrap" data-reveal>
+      <table class="stack mono">
+        <caption class="sr-only">Technologies we use, by area</caption>
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Area</th>
+            <th scope="col">Tools</th>
+          </tr>
+        </thead>
+        <tbody>
+          {stack.map((row, i) => (
+            <tr>
+              <td class="stack__idx">{String(i).padStart(2, '0')}</td>
+              <th scope="row">{row.area}</th>
+              <td>
+                <ul class="stack__tools">
+                  {row.tools.map((t) => (
+                    <li>{t}</li>
+                  ))}
+                </ul>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<style>
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--c-line);
+  }
+  .stack {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--fs-sm);
+  }
+  .stack th,
+  .stack td {
+    text-align: left;
+    padding: var(--s-4) var(--s-5);
+    border-bottom: 1px solid var(--c-line);
+    vertical-align: top;
+  }
+  .stack thead th {
+    font-weight: 400;
+    font-size: var(--fs-xs);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--c-muted);
+    background: var(--c-surface);
+  }
+  .stack tbody tr:last-child > * {
+    border-bottom: 0;
+  }
+  .stack tbody tr {
+    transition: background var(--dur) var(--ease);
+  }
+  .stack tbody tr:hover {
+    background: var(--c-surface);
+  }
+  .stack tbody th {
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .stack__idx {
+    color: var(--c-muted);
+    width: 3rem;
+  }
+  .stack__tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.5rem;
+    list-style: none;
+    padding: 0;
+    color: var(--c-muted);
+  }
+  .stack__tools li::before {
+    content: '+ ';
+    color: var(--c-line-strong);
+  }
+</style>

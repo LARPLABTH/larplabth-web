@@ -1,0 +1,59 @@
+---
+interface Props {
+  num: string; // "01"
+  label: string; // "What we do"
+  title: string;
+  lead?: string;
+  /** id for the <h2>, so the parent <section> can use aria-labelledby */
+  id?: string;
+}
+const { num, label, title, lead, id } = Astro.props;
+---
+
+<header class="sh" data-reveal>
+  <p class="sh__label label">
+    <span class="sh__num" data-scramble>
+      {num}
+    </span>
+    <span aria-hidden="true">//</span>
+    <span>{label}</span>
+    <span class="sh__rule" aria-hidden="true"></span>
+  </p>
+  <h2 class="sh__title" id={id}>
+    {title}
+  </h2>
+  {lead && <p class="sh__lead">{lead}</p>}
+</header>
+
+<style>
+  .sh {
+    display: grid;
+    gap: var(--s-4);
+    margin-bottom: var(--s-8);
+    max-width: 52rem;
+  }
+  .sh__label {
+    display: flex;
+    align-items: center;
+    gap: 0.6em;
+    color: var(--c-muted);
+  }
+  .sh__num {
+    color: var(--c-text);
+  }
+  .sh__rule {
+    flex: 1;
+    height: 1px;
+    min-width: 2rem;
+    max-width: 8rem;
+    background: var(--c-line-strong);
+  }
+  .sh__title {
+    font-size: var(--fs-xl);
+  }
+  .sh__lead {
+    color: var(--c-muted);
+    font-size: var(--fs-md);
+    max-width: 40rem;
+  }
+</style>

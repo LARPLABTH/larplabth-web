@@ -1,0 +1,80 @@
+---
+import SectionHeader from '../ui/SectionHeader.astro';
+import { site } from '../../config/site';
+
+// PLACEHOLDER — replace with real copy and team profiles.
+const stats = [
+  { value: '06', label: 'Disciplines' },
+  { value: 'TH', label: 'Based in' },
+  { value: String(site.foundedYear), label: 'Est.' },
+  { value: '1', label: 'Team, end to end' },
+];
+---
+
+<section class="section" id="about" aria-labelledby="about-title">
+  <div class="container">
+    <SectionHeader id="about-title" num="05" label="About" title="A small lab with a wide bench." />
+    <div class="about">
+      <div class="about__copy" data-reveal>
+        <p>
+          <span class="tag label">[placeholder]</span> {site.name} is a team of developers and
+          makers who like problems that cross boundaries — where software meets hardware, and where
+          the answer isn't on the first page of search results.
+        </p>
+        <p class="muted">
+          Team profiles and our story are coming soon. In the meantime, the fastest way to get to
+          know us is to send us a problem.
+        </p>
+      </div>
+      <dl class="stats" data-reveal>
+        {stats.map((s) => (
+          <div class="stat">
+            <dt class="label">{s.label}</dt>
+            <dd class="pixel">{s.value}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  </div>
+</section>
+
+<style>
+  .about {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    gap: var(--s-7);
+    align-items: start;
+  }
+  .about__copy {
+    display: grid;
+    gap: var(--s-4);
+    font-size: var(--fs-md);
+    max-width: 38rem;
+  }
+  .tag {
+    margin-right: 0.4em;
+  }
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px;
+    background: var(--c-line);
+    border: 1px solid var(--c-line);
+  }
+  .stat {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: var(--s-2);
+    padding: var(--s-5);
+    background: var(--c-bg);
+  }
+  .stat dd {
+    font-size: var(--fs-xl);
+    line-height: 1;
+  }
+  @media (max-width: 56rem) {
+    .about {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

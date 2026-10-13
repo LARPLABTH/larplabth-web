@@ -1,0 +1,259 @@
+---
+import Button from '../ui/Button.astro';
+import { site } from '../../config/site';
+
+type Line = { kind: 'cmd' | 'out'; text: string };
+const terminal: Line[] = [
+  { kind: 'cmd', text: 'larp --init' },
+  { kind: 'out', text: '> loading modules ............ ok' },
+  { kind: 'out', text: '  [saas] [tools] [services]' },
+  { kind: 'out', text: '  [devices] [maker] [consult]' },
+  { kind: 'cmd', text: 'larp status' },
+  { kind: 'out', text: `> lab: online · loc: ${site.location} · accepting projects` },
+];
+---
+
+<section class="hero" id="top" aria-labelledby="hero-title">
+  <div class="container hero__grid">
+    <div class="hero__copy">
+      <p class="label hero__kicker" data-reveal>
+        <span data-scramble>// developer team</span> — {site.location}
+      </p>
+      <h1 id="hero-title" class="hero__title" data-reveal>
+        We build software,
+        <br /> tools &amp; devices
+        <span class="hero__cursor" aria-hidden="true">
+          _
+        </span>
+      </h1>
+      <p class="hero__sub" data-reveal>
+        {site.name} is a developer team building SaaS, internal tools, custom services, connected
+        hardware and maker projects — and helping teams solve the hard technical problems in
+        between.
+      </p>
+      <div class="hero__ctas" data-reveal>
+        <Button href="#contact">Start a project</Button>
+        <Button href="#services" variant="ghost">
+          What we do
+        </Button>
+      </div>
+
+      <div
+        class="term"
+        data-reveal
+        role="img"
+        aria-label="Terminal: larp --init loads saas, tools, services, devices, maker and consult modules; status: online, accepting projects."
+      >
+        <div class="term__bar" aria-hidden="true">
+          <span></span>
+          <span></span>
+          <span></span>
+          <em class="label">~/larp-lab — zsh</em>
+        </div>
+        <div class="term__body mono" data-typewriter aria-hidden="true">
+          {terminal.map((l) => (
+            <p class:list={['term__line', `term__line--${l.kind}`]} data-line data-kind={l.kind}>
+              {l.kind === 'cmd' && <span class="term__ps">$</span>}
+              <span data-text>{l.text}</span>
+            </p>
+          ))}
+          <p class="term__line term__line--cmd term__idle">
+            <span class="term__ps">$</span>
+            <span class="cursor"></span>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <figure class="field" data-reveal>
+      <div class="field__frame">
+        <canvas class="field__canvas" data-pixel-field aria-hidden="true"></canvas>
+        <span class="field__tick field__tick--tl" aria-hidden="true"></span>
+        <span class="field__tick field__tick--tr" aria-hidden="true"></span>
+        <span class="field__tick field__tick--bl" aria-hidden="true"></span>
+        <span class="field__tick field__tick--br" aria-hidden="true"></span>
+      </div>
+      <figcaption class="field__cap label">
+        <span>Fig.00 — pixel field</span>
+        <span class="field__readout" data-field-readout>
+          x:--- y:---
+        </span>
+      </figcaption>
+    </figure>
+  </div>
+</section>
+
+<script>
+  import { mountPixelField } from '../../scripts/fx/pixelField';
+  import { initTypewriter } from '../../scripts/fx/typewriter';
+
+  const canvas = document.querySelector<HTMLCanvasElement>('[data-pixel-field]');
+  const readout = document.querySelector<HTMLElement>('[data-field-readout]');
+  const pad = (n: number) => String(n).padStart(3, '0');
+
+  if (canvas) {
+    void mountPixelField(canvas, {
+      lines: ['LARP', 'LAB'],
+      cell: window.innerWidth < 640 ? 8 : 10,
+      onPointer: (pos) => {
+        if (readout) readout.textContent = pos ? `x:${pad(pos.x)} y:${pad(pos.y)}` : 'x:--- y:---';
+      },
+    });
+  }
+
+  const term = document.querySelector<HTMLElement>('[data-typewriter]');
+  if (term) initTypewriter(term);
+</script>
+
+<style>
+  .hero {
+    padding-block: var(--s-8) var(--s-9);
+  }
+  .hero__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    gap: var(--s-8);
+    align-items: start;
+  }
+  .hero__copy {
+    display: grid;
+    gap: var(--s-5);
+    min-width: 0;
+  }
+  .hero__title {
+    font-size: var(--fs-2xl);
+    letter-spacing: -0.035em;
+  }
+  .hero__cursor {
+    font-family: var(--f-pixel);
+    animation: blink 1.05s steps(1) infinite;
+  }
+  .hero__sub {
+    font-size: var(--fs-md);
+    color: var(--c-muted);
+    max-width: 36rem;
+  }
+  .hero__ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-3);
+  }
+
+  /* terminal */
+  .term {
+    margin-top: var(--s-4);
+    border: 1px solid var(--c-line-strong);
+    border-radius: var(--radius);
+    background: var(--c-surface);
+    max-width: 36rem;
+  }
+  .term__bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0.55rem 0.8rem;
+    border-bottom: 1px solid var(--c-line);
+  }
+  .term__bar > span {
+    width: 8px;
+    height: 8px;
+    background: var(--c-line-strong);
+  }
+  .term__bar em {
+    margin-left: auto;
+    font-style: normal;
+  }
+  .term__body {
+    padding: var(--s-4) var(--s-5);
+    font-size: var(--fs-sm);
+    line-height: 1.75;
+    min-height: 13.5rem;
+    overflow-x: auto;
+  }
+  .term__line {
+    white-space: pre;
+  }
+  @media (max-width: 40rem) {
+    .term__line {
+      white-space: pre-wrap;
+    }
+  }
+  .term__line--out {
+    color: var(--c-muted);
+  }
+  .term__ps {
+    color: var(--c-muted);
+    margin-right: 1ch;
+  }
+  .term__line.is-active [data-text]::after {
+    content: '█';
+    animation: blink 1.05s steps(1) infinite;
+  }
+  :global(.is-typing) .term__idle {
+    display: none;
+  }
+
+  /* pixel field */
+  .field {
+    position: relative;
+    display: grid;
+    gap: var(--s-3);
+    min-width: 0;
+  }
+  .field__frame {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    border: 1px solid var(--c-line);
+    background: var(--c-bg);
+  }
+  .field__canvas {
+    width: 100%;
+    height: 100%;
+    touch-action: pan-y;
+    cursor: crosshair;
+  }
+  .field__tick {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border: 0 solid var(--c-text);
+  }
+  .field__tick--tl {
+    top: -1px;
+    left: -1px;
+    border-top-width: 1px;
+    border-left-width: 1px;
+  }
+  .field__tick--tr {
+    top: -1px;
+    right: -1px;
+    border-top-width: 1px;
+    border-right-width: 1px;
+  }
+  .field__tick--bl {
+    bottom: -1px;
+    left: -1px;
+    border-bottom-width: 1px;
+    border-left-width: 1px;
+  }
+  .field__tick--br {
+    bottom: -1px;
+    right: -1px;
+    border-bottom-width: 1px;
+    border-right-width: 1px;
+  }
+  .field__cap {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--s-4);
+  }
+
+  @media (max-width: 56rem) {
+    .hero__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .field__frame {
+      aspect-ratio: 16 / 10;
+    }
+  }
+</style>

@@ -1,0 +1,22 @@
+---
+/** Inline shell prompt: `$ <slot>` */
+interface Props {
+  symbol?: string;
+}
+const { symbol = '$' } = Astro.props;
+---
+
+<span class="prompt mono">
+  <span class="prompt__sym" aria-hidden="true">
+    {symbol}
+  </span>
+  <slot />
+</span>
+
+<style>
+  .prompt__sym {
+    color: var(--c-muted);
+    margin-right: 0.6ch;
+    user-select: none;
+  }
+</style>

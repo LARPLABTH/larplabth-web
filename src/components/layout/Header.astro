@@ -1,0 +1,209 @@
+---
+import Logo from '../brand/Logo.astro';
+import ThemeToggle from './ThemeToggle.astro';
+import Button from '../ui/Button.astro';
+import { nav } from '../../config/site';
+---
+
+<header class="hdr">
+  <div class="hdr__inner container">
+    <a href="/#top" class="hdr__brand" aria-label="LARP LAB TH — home">
+      <Logo />
+    </a>
+
+    <nav class="hdr__nav" id="site-nav" aria-label="Primary">
+      <ul>
+        {nav.map((item, i) => (
+          <li>
+            <a href={`/${item.href}`}>
+              <span class="hdr__num" aria-hidden="true">
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              {item.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <div class="hdr__actions">
+      <ThemeToggle />
+      <Button href="/#contact" class="hdr__cta">
+        Start a project
+      </Button>
+      <button
+        class="hdr__menu"
+        type="button"
+        aria-expanded="false"
+        aria-controls="site-nav"
+        data-menu-toggle
+      >
+        <span class="sr-only">Menu</span>
+        <span class="hdr__bars" aria-hidden="true"></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<script>
+  const btn = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+  const navEl = document.getElementById('site-nav');
+  if (btn && navEl) {
+    const set = (open: boolean) => {
+      btn.setAttribute('aria-expanded', String(open));
+      document.body.classList.toggle('menu-open', open);
+    };
+    btn.addEventListener('click', () => set(btn.getAttribute('aria-expanded') !== 'true'));
+    navEl.addEventListener('click', (e) => {
+      if ((e.target as HTMLElement).closest('a')) set(false);
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') set(false);
+    });
+    window.matchMedia('(min-width: 72rem)').addEventListener('change', () => set(false));
+  }
+</script>
+
+<style>
+  .hdr {
+    position: sticky;
+    top: env(safe-area-inset-top, 0px);
+    z-index: 50;
+    background: color-mix(in srgb, var(--c-bg) 82%, transparent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--c-line);
+  }
+  .hdr__inner {
+    display: flex;
+    align-items: center;
+    gap: var(--s-5);
+    height: var(--header-h);
+  }
+  .hdr__brand {
+    flex: none;
+  }
+  .hdr__nav {
+    margin-inline: auto;
+  }
+  .hdr__nav ul {
+    display: flex;
+    gap: var(--s-5);
+    list-style: none;
+    padding: 0;
+  }
+  .hdr__nav a {
+    font-family: var(--f-mono);
+    font-size: var(--fs-xs);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--c-muted);
+    transition: color var(--dur) var(--ease);
+  }
+  .hdr__nav a:hover {
+    color: var(--c-text);
+  }
+  .hdr__num {
+    margin-right: 0.4em;
+    opacity: 0.55;
+  }
+  .hdr__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+  }
+  .hdr__actions :global(.hdr__cta) {
+    padding: 0.5rem 0.8rem;
+    font-size: var(--fs-xs);
+  }
+  .hdr__menu {
+    display: none;
+    width: 2.5rem;
+    height: 2.5rem;
+    background: none;
+    border: 1px solid var(--c-line-strong);
+    border-radius: var(--radius);
+    cursor: pointer;
+    place-items: center;
+  }
+  .hdr__bars,
+  .hdr__bars::before,
+  .hdr__bars::after {
+    display: block;
+    width: 16px;
+    height: 2px;
+    background: var(--c-text);
+    transition: transform var(--dur) var(--ease);
+  }
+  .hdr__bars {
+    position: relative;
+  }
+  .hdr__bars::before,
+  .hdr__bars::after {
+    content: '';
+    position: absolute;
+    left: 0;
+  }
+  .hdr__bars::before {
+    top: -5px;
+  }
+  .hdr__bars::after {
+    top: 5px;
+  }
+  :global(.menu-open) .hdr__bars {
+    background: transparent;
+  }
+  :global(.menu-open) .hdr__bars::before {
+    transform: translateY(5px) rotate(45deg);
+  }
+  :global(.menu-open) .hdr__bars::after {
+    transform: translateY(-5px) rotate(-45deg);
+  }
+
+  @media (max-width: 71.99rem) {
+    .hdr__menu {
+      display: grid;
+    }
+    .hdr__actions {
+      margin-left: auto;
+    }
+    .hdr__nav {
+      position: fixed;
+      inset: calc(var(--header-h) + env(safe-area-inset-top, 0px)) 0 0 0;
+      background: var(--c-bg);
+      padding: var(--s-6) var(--gutter);
+      visibility: hidden;
+      opacity: 0;
+      transition:
+        opacity var(--dur) var(--ease),
+        visibility 0s linear var(--dur);
+    }
+    :global(.menu-open) .hdr__nav {
+      visibility: visible;
+      opacity: 1;
+      transition:
+        opacity var(--dur) var(--ease),
+        visibility 0s;
+    }
+    .hdr__nav ul {
+      flex-direction: column;
+      gap: 0;
+    }
+    .hdr__nav li {
+      border-bottom: 1px solid var(--c-line);
+    }
+    .hdr__nav a {
+      display: block;
+      padding: var(--s-4) 0;
+      font-size: var(--fs-md);
+      color: var(--c-text);
+    }
+  }
+  @media (max-width: 40rem) {
+    .hdr__actions :global(.hdr__cta),
+    .hdr__actions :global(.theme-toggle__label) {
+      display: none;
+    }
+  }
+</style>
