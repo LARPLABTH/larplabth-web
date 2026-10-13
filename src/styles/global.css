@@ -41,6 +41,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
   overflow-x: clip;
 }
+/* component display rules must never override the HTML `hidden` attribute */
+[hidden] {
+  display: none !important;
+}
 img,
 svg,
 canvas,

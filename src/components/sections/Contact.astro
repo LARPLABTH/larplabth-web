@@ -1,15 +1,19 @@
 ---
 import SectionHeader from '../ui/SectionHeader.astro';
-import Button from '../ui/Button.astro';
 import { site } from '../../config/site';
 
 /**
- * The form posts to the Pages Function in functions/api/contact.ts. It stays hidden (the
- * decorative terminal shows instead) until `site.contactForm.enabled` is true.
+ * The form posts to the Worker in worker/contact.ts. It stays hidden (the decorative terminal
+ * shows instead) until `site.contactForm.enabled` is true.
+ *
+ * The email address is NOT written into the page: it is shipped base64-encoded and only
+ * decoded and shown when a visitor clicks "show email address". This keeps it out of simple
+ * scrapers; it is not strong secrecy.
  */
 const FORM_ENABLED = site.contactForm.enabled;
 const siteKey = site.contactForm.turnstileSiteKey;
-const mailto = `mailto:${site.email}?subject=${encodeURIComponent('Project enquiry — via larplabth.com')}`;
+const encodedEmail = Buffer.from(site.email).toString('base64');
+const mailtoSubject = 'Project enquiry — via larplabth.com';
 ---
 
 <section class="section contact" id="contact" aria-labelledby="contact-title">
@@ -24,16 +28,22 @@ const mailto = `mailto:${site.email}?subject=${encodeURIComponent('Project enqui
 
     <div class="contact__grid">
       <div class="contact__direct" data-reveal>
-        <p class="label">Email</p>
-        <p class="contact__email">
-          <a href={mailto}>{site.email}</a>
-        </p>
-        <div class="contact__actions">
-          <Button href={mailto}>Send an email</Button>
-          <button class="copy mono" type="button" data-copy={site.email}>
-            <span data-copy-label>copy address</span>
+        <p class="label">Prefer email?</p>
+        <div class="reveal" data-email-reveal data-e={encodedEmail} data-subject={mailtoSubject}>
+          <button class="reveal__btn mono" type="button" aria-expanded="false" data-reveal-btn>
+            <span>show email address</span>
+            <span aria-hidden="true">-&gt;</span>
           </button>
+          <div class="reveal__addr" hidden data-reveal-addr>
+            <a class="reveal__link" data-addr-link></a>
+            <button class="copy mono" type="button" data-copy-addr>
+              <span data-copy-label>copy address</span>
+            </button>
+          </div>
         </div>
+        <p class="contact__note muted">
+          The form is the fastest way to reach us. We reply within 12 hours.
+        </p>
         {site.socials.length > 0 && (
           <ul class="socials">
             {site.socials.map((s) => (
@@ -108,18 +118,36 @@ const mailto = `mailto:${site.email}?subject=${encodeURIComponent('Project enqui
 </section>
 
 <script>
-  document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((btn) => {
-    const label = btn.querySelector<HTMLElement>('[data-copy-label]');
-    btn.addEventListener('click', async () => {
-      try {
-        await navigator.clipboard.writeText(btn.dataset.copy ?? '');
-        if (label) label.textContent = 'copied ✓';
-      } catch {
-        if (label) label.textContent = 'copy failed';
-      }
-      setTimeout(() => label && (label.textContent = 'copy address'), 1800);
+  // ---- click-to-reveal email (address is only decoded here, never in the page HTML) ----
+  const reveal = document.querySelector<HTMLElement>('[data-email-reveal]');
+  if (reveal) {
+    const btn = reveal.querySelector<HTMLButtonElement>('[data-reveal-btn]')!;
+    const box = reveal.querySelector<HTMLElement>('[data-reveal-addr]')!;
+    const link = reveal.querySelector<HTMLAnchorElement>('[data-addr-link]')!;
+    const copyBtn = reveal.querySelector<HTMLButtonElement>('[data-copy-addr]')!;
+    const label = copyBtn.querySelector<HTMLElement>('[data-copy-label]')!;
+    let address = '';
+
+    btn.addEventListener('click', () => {
+      address = atob(reveal.dataset.e ?? '');
+      link.textContent = address;
+      link.href = `mailto:${address}?subject=${encodeURIComponent(reveal.dataset.subject ?? '')}`;
+      btn.hidden = true;
+      btn.setAttribute('aria-expanded', 'true');
+      box.hidden = false;
+      link.focus();
     });
-  });
+
+    copyBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(address);
+        label.textContent = 'copied ✓';
+      } catch {
+        label.textContent = 'copy failed';
+      }
+      setTimeout(() => (label.textContent = 'copy address'), 1800);
+    });
+  }
 
   // ---- contact form ----
   const form = document.querySelector<HTMLFormElement>('[data-contact-form]');
@@ -199,31 +227,49 @@ const mailto = `mailto:${site.email}?subject=${encodeURIComponent('Project enqui
     display: grid;
     gap: var(--s-4);
   }
-  .contact__email {
-    font-size: var(--fs-xl);
+  .reveal__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.8rem 1.1rem;
+    background: none;
+    border: 1px solid var(--c-line-strong);
+    border-radius: var(--radius);
+    color: var(--c-text);
+    font-size: var(--fs-sm);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition:
+      border-color var(--dur) var(--ease),
+      background var(--dur) var(--ease);
+  }
+  .reveal__btn:hover {
+    border-color: var(--c-text);
+    background: var(--c-surface);
+  }
+  .reveal__addr {
+    display: grid;
+    gap: var(--s-2);
+    justify-items: start;
+  }
+  .reveal__link {
+    font-size: var(--fs-lg);
     letter-spacing: -0.02em;
     overflow-wrap: anywhere;
-  }
-  .contact__email a {
     background-image: linear-gradient(currentColor, currentColor);
-    background-size: 0% 1px;
+    background-size: 100% 1px;
     background-position: 0 100%;
     background-repeat: no-repeat;
-    transition: background-size 300ms var(--ease);
   }
-  .contact__email a:hover {
-    background-size: 100% 1px;
-  }
-  .contact__actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--s-3);
-    align-items: center;
+  .contact__note {
+    font-size: var(--fs-sm);
+    max-width: 24rem;
   }
   .copy {
     background: none;
     border: 0;
-    padding: 0.8rem 0.4rem;
+    padding: 0.2rem 0;
     font-size: var(--fs-sm);
     color: var(--c-muted);
     cursor: pointer;
