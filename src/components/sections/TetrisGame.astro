@@ -1,0 +1,229 @@
+---
+/** Minimal mono Tetris, shown under the pixel field in the hero. Logic: src/scripts/fx/tetris.ts */
+---
+
+<figure class="game" data-tetris data-reveal>
+  <div class="game__frame">
+    <div class="game__board">
+      <canvas
+        class="game__canvas"
+        data-tetris-board
+        tabindex="0"
+        role="application"
+        aria-label="Tetris. Press Enter to start. Arrow keys move and rotate, space drops, P pauses."
+      ></canvas>
+      <button class="game__overlay mono" type="button" data-tetris-overlay>
+        <span class="game__msg" data-tetris-msg>
+          press enter to play
+        </span>
+        <span class="game__sub" data-tetris-sub>
+          click here, then use the arrow keys
+        </span>
+      </button>
+    </div>
+
+    <div class="game__side mono">
+      <div class="game__stat">
+        <span class="label">next</span>
+        <canvas class="game__next" data-tetris-next aria-hidden="true"></canvas>
+      </div>
+      <div class="game__stat">
+        <span class="label">score</span>
+        <span class="game__num" data-tetris-score>
+          0
+        </span>
+      </div>
+      <div class="game__stat">
+        <span class="label">lines</span>
+        <span class="game__num" data-tetris-lines>
+          0
+        </span>
+      </div>
+      <div class="game__stat">
+        <span class="label">best</span>
+        <span class="game__num" data-tetris-best>
+          0
+        </span>
+      </div>
+      <p class="game__keys game__keys--kb">
+        ← → move
+        <br />↑ rotate · ↓ soft
+        <br />
+        space drop · P pause
+      </p>
+    </div>
+  </div>
+
+  <div class="game__pad mono" aria-label="Touch controls">
+    <button type="button" data-action="left" aria-label="Move left">
+      &lt;
+    </button>
+    <button type="button" data-action="rotate" aria-label="Rotate">
+      rot
+    </button>
+    <button type="button" data-action="right" aria-label="Move right">
+      &gt;
+    </button>
+    <button type="button" data-action="down" aria-label="Soft drop">
+      v
+    </button>
+    <button type="button" data-action="drop" aria-label="Hard drop">
+      drop
+    </button>
+  </div>
+
+  <figcaption class="game__cap label">
+    <span>Fig.01 — tetris</span>
+    <span class="game__hint">click to play</span>
+  </figcaption>
+</figure>
+
+<script>
+  import { mountTetris } from '../../scripts/fx/tetris';
+  document.querySelectorAll<HTMLElement>('[data-tetris]').forEach(mountTetris);
+</script>
+
+<style>
+  .game {
+    display: grid;
+    gap: var(--s-3);
+    min-width: 0;
+    --cell: 15px;
+  }
+  .game__frame {
+    display: flex;
+    gap: var(--s-6);
+    padding: var(--s-4);
+    border: 1px solid var(--c-line);
+    background: var(--c-bg);
+  }
+  .game__board {
+    position: relative;
+    flex: none;
+    width: calc(var(--cell) * 10);
+    aspect-ratio: 1 / 2;
+  }
+  .game__canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    outline: none;
+    touch-action: none;
+  }
+  .game__board:has(.game__canvas:focus-visible) {
+    outline: 1px solid var(--c-signal);
+    outline-offset: 4px;
+  }
+
+  /* start / pause / game-over screen */
+  .game__overlay {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-content: center;
+    gap: var(--s-2);
+    padding: var(--s-3);
+    background: color-mix(in srgb, var(--c-bg) 90%, transparent);
+    border: 0;
+    color: var(--c-text);
+    text-align: center;
+    cursor: pointer;
+  }
+  .game__msg {
+    font-size: var(--fs-sm);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .game__sub {
+    white-space: pre-line;
+    font-size: var(--fs-xs);
+    line-height: 1.5;
+    color: var(--c-muted);
+  }
+  .game__overlay:hover .game__msg {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  .game__overlay:focus-visible {
+    outline: 1px solid var(--c-signal);
+    outline-offset: -4px;
+  }
+
+  /* side panel */
+  .game__side {
+    display: grid;
+    align-content: space-between;
+    gap: var(--s-3);
+    min-width: 0;
+    flex: 1;
+    font-size: var(--fs-sm);
+  }
+  .game__stat {
+    display: grid;
+    gap: var(--s-1);
+  }
+  .game__num {
+    font-size: var(--fs-lg);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .game__next {
+    width: 3.6rem;
+    height: 3.6rem;
+  }
+  .game__keys {
+    margin: 0;
+    font-size: var(--fs-xs);
+    line-height: 1.7;
+    color: var(--c-muted);
+  }
+
+  .game__cap {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--s-4);
+  }
+
+  /* touch pad: only on touch screens */
+  .game__pad {
+    display: none;
+    grid-template-columns: repeat(5, 1fr);
+    gap: var(--s-2);
+  }
+  .game__pad button {
+    padding: 0.8rem 0;
+    background: none;
+    border: 1px solid var(--c-line-strong);
+    border-radius: var(--radius);
+    color: var(--c-text);
+    font-size: var(--fs-sm);
+    touch-action: manipulation;
+    user-select: none;
+  }
+  .game__pad button:active {
+    background: var(--c-surface);
+  }
+  @media (pointer: coarse) {
+    .game__pad {
+      display: grid;
+    }
+    .game__keys--kb {
+      display: none;
+    }
+    .game__hint {
+      font-size: 0;
+    }
+    .game__hint::after {
+      content: 'tap to play';
+      font-size: var(--fs-xs);
+    }
+  }
+  @media (max-width: 30rem) {
+    .game {
+      --cell: 13px;
+    }
+    .game__frame {
+      gap: var(--s-4);
+    }
+  }
+</style>

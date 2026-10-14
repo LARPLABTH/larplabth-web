@@ -47,11 +47,12 @@ src/
     brand/Logo.astro        logo: full wordmark (TH → TECH on hover) + <L/> mark
     layout/                 Header (+ mobile menu), Footer, ThemeToggle
     ui/                     SectionHeader, Button, Card, Prompt
-    sections/               Hero, Ticker, Services, Process, Lab, Stack, About, Faq, Contact
+    sections/               Hero (+ TetrisGame), Ticker, Services, Process, Lab, Stack, About, Faq, Contact
   scripts/fx/
     pixelField.ts           hero canvas: pixel wordmark + reactive dot grid
     typewriter.ts           terminal typing
     scramble.ts             binary text scramble ([data-scramble])
+    tetris.ts / tetrisCore.ts  mono Tetris under the pixel field (rules are pure + tested)
     reducedMotion.ts        reduced-motion guard, visibility helpers, [data-reveal]
   pages/index.astro, 404.astro
 public/  favicon.svg, og-default.png, robots.txt, _headers (Cloudflare)
