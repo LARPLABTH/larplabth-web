@@ -6,6 +6,9 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import sharp from 'sharp';
 import { ADV, CAP, GLYPH, LAYOUT, MARK, MARK_X, STROKE } from '../src/config/brand.ts';
+import { site } from '../src/config/site.ts';
+
+const MOTTO = site.motto;
 
 const DARK = {
   bg: '#0f0f0f',
@@ -101,25 +104,32 @@ const og = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">
 <rect width="100%" height="100%" fill="${DARK.bg}"/>${dots}
 <rect x="40" y="40" width="${W - 80}" height="${H - 80}" fill="none" stroke="${DARK.line}" stroke-width="2"/>
 <g transform="translate(96 160) scale(${sc})">${fullGroup(DARK, 'og', true)}</g>
-<text x="96" y="370" font-family="Menlo, monospace" font-size="30" fill="${DARK.fg}">$ We build software, tools &amp; devices.</text>
-<text x="96" y="420" font-family="Menlo, monospace" font-size="22" fill="${DARK.muted}">A team of college students from Thailand.</text>
+<text x="96" y="372" font-family="Menlo, monospace" font-size="38" letter-spacing="2" fill="${DARK.fg}">${MOTTO}</text>
+<text x="96" y="424" font-family="Menlo, monospace" font-size="24" fill="${DARK.muted}">We build software, tools &amp; devices.</text>
 <text x="96" y="545" font-family="Menlo, monospace" font-size="20" fill="${DARK.muted}">larplabth.com</text>
 <g transform="translate(${W - 96 - 28 * 4.2} 515) scale(4.2)">${markGroup(DARK, 'ogm')}</g>
 </svg>`;
 await sharp(Buffer.from(og)).png().toFile('public/og-default.png');
 // ---- Facebook cover 1640×624 (shown ~820×312; phones crop the sides) ----
-for (const [file, tech] of [['facebook-cover.png', false], ['facebook-cover-tech.png', true]]) {
-  const CW = 1640, CH = 624;
+for (const [file, tech] of [
+  ['facebook-cover.png', false],
+  ['facebook-cover-tech.png', true],
+]) {
+  const CW = 1640,
+    CH = 624;
   let cdots = '';
-  for (let y = 16; y < CH; y += 32) for (let x = 16; x < CW; x += 32) cdots += `<rect x="${x}" y="${y}" width="2.5" height="2.5" fill="${DARK.fg}" opacity="0.07"/>`;
+  for (let y = 16; y < CH; y += 32)
+    for (let x = 16; x < CW; x += 32)
+      cdots += `<rect x="${x}" y="${y}" width="2.5" height="2.5" fill="${DARK.fg}" opacity="0.07"/>`;
   const units = tech ? LAYOUT.widthTECH : LAYOUT.widthTH;
   const k = 6.6; // wordmark scale
   const x0 = (CW - units * k) / 2;
   const cover = `<svg xmlns="http://www.w3.org/2000/svg" width="${CW}" height="${CH}">
 <rect width="100%" height="100%" fill="${DARK.bg}"/>${cdots}
 <g transform="translate(${x0} 232) scale(${k})">${fullGroup(DARK, 'cv' + tech, tech)}</g>
-<text x="${CW / 2}" y="395" text-anchor="middle" font-family="Menlo, monospace" font-size="30" fill="${DARK.fg}">$ We build software, tools &amp; devices.</text>
-<text x="${CW / 2}" y="445" text-anchor="middle" font-family="Menlo, monospace" font-size="22" fill="${DARK.muted}">larplabth.com</text>
+<text x="${CW / 2}" y="395" text-anchor="middle" font-family="Menlo, monospace" font-size="34" letter-spacing="2" fill="${DARK.fg}">${MOTTO}</text>
+<text x="${CW / 2}" y="443" text-anchor="middle" font-family="Menlo, monospace" font-size="22" fill="${DARK.muted}">We build software, tools &amp; devices.</text>
+<text x="${CW / 2}" y="493" text-anchor="middle" font-family="Menlo, monospace" font-size="20" fill="${DARK.muted}">larplabth.com</text>
 </svg>`;
   await sharp(Buffer.from(cover)).png().toFile(`design/${file}`);
 }

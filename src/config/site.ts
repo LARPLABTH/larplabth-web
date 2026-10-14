@@ -7,8 +7,9 @@ export const site = {
   shortName: 'LARP_LAB',
   url: 'https://larplabth.com',
   tagline: 'We build software, tools & devices.',
+  motto: 'LARP IT TILL YOU MAKE IT',
   description:
-    'LARP LAB TH is an anonymous team of college students from Thailand building SaaS, tools, services and devices — and helping teams solve hard technical problems.',
+    'LARP it till you make it. LARP LAB TH is an anonymous team of college students from Thailand building SaaS, tools, services and devices — and helping teams solve hard technical problems.',
   email: 'larplab.th@gmail.com',
   location: 'Thailand',
   foundedYear: 2026,

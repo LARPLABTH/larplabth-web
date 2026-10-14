@@ -1,0 +1,75 @@
+---
+import { site } from '../../config/site';
+
+// "LARP IT TILL YOU MAKE IT": LARP and MAKE IT in full strength, the words between dimmed.
+const words = site.motto.split(' ');
+const strong = new Set([0, words.length - 2, words.length - 1]);
+---
+
+<section class="motto" aria-label="Our motto">
+  <div class="container">
+    <p class="motto__cmd label" data-reveal>
+      <span aria-hidden="true">$</span> larp --motto
+    </p>
+    <p class="motto__text" aria-label={site.motto}>
+      {words.map((w, i) => (
+        <span
+          class:list={['motto__word', strong.has(i) && 'is-strong']}
+          data-reveal
+          style={`transition-delay:${i * 90}ms`}
+          aria-hidden="true"
+        >
+          {w}
+        </span>
+      ))}
+      <span class="motto__cursor cursor" aria-hidden="true"></span>
+    </p>
+  </div>
+</section>
+
+<style>
+  .motto {
+    padding-block: var(--s-9);
+  }
+  .motto__cmd {
+    margin-bottom: var(--s-5);
+  }
+  .motto__text {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 0.28em;
+    max-width: 18ch;
+    font-size: clamp(2.4rem, 1.2rem + 6.4vw, 6.75rem);
+    font-weight: 500;
+    line-height: 1.02;
+    letter-spacing: -0.04em;
+    text-wrap: balance;
+  }
+  .motto__word {
+    color: var(--c-muted);
+    transition-property: opacity, transform, color;
+  }
+  .motto__word.is-strong {
+    color: var(--c-text);
+  }
+  .motto__cursor {
+    display: inline-block;
+    align-self: flex-end;
+    width: 0.5em;
+    height: 0.86em;
+    margin-left: 0.04em;
+    background: var(--c-signal);
+    transform: translateY(-0.04em);
+    animation: blink 1.05s steps(1) infinite;
+  }
+  /* the shared .cursor class draws a glyph; this one is a solid block sized to the text */
+  .motto__cursor::after {
+    content: none;
+  }
+  @media (max-width: 40rem) {
+    .motto {
+      padding-block: var(--s-8);
+    }
+  }
+</style>
