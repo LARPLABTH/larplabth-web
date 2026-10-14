@@ -1,6 +1,7 @@
 // Generates every static brand asset from src/config/brand.ts — run: npm run brand
 //   public/favicon.svg, public/apple-touch-icon.png, public/og-default.png
 //   design/avatar-mark.png (GitHub / social avatar), design/logo-*.svg (standalone logos)
+//   design/facebook-cover*.png (1640×624 banner; content kept in the centre safe zone)
 // Requires Node ≥ 22.18 (runs the .ts import directly).
 import { mkdirSync, writeFileSync } from 'node:fs';
 import sharp from 'sharp';
@@ -106,4 +107,20 @@ const og = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">
 <g transform="translate(${W - 96 - 28 * 4.2} 515) scale(4.2)">${markGroup(DARK, 'ogm')}</g>
 </svg>`;
 await sharp(Buffer.from(og)).png().toFile('public/og-default.png');
+// ---- Facebook cover 1640×624 (shown ~820×312; phones crop the sides) ----
+for (const [file, tech] of [['facebook-cover.png', false], ['facebook-cover-tech.png', true]]) {
+  const CW = 1640, CH = 624;
+  let cdots = '';
+  for (let y = 16; y < CH; y += 32) for (let x = 16; x < CW; x += 32) cdots += `<rect x="${x}" y="${y}" width="2.5" height="2.5" fill="${DARK.fg}" opacity="0.07"/>`;
+  const units = tech ? LAYOUT.widthTECH : LAYOUT.widthTH;
+  const k = 6.6; // wordmark scale
+  const x0 = (CW - units * k) / 2;
+  const cover = `<svg xmlns="http://www.w3.org/2000/svg" width="${CW}" height="${CH}">
+<rect width="100%" height="100%" fill="${DARK.bg}"/>${cdots}
+<g transform="translate(${x0} 232) scale(${k})">${fullGroup(DARK, 'cv' + tech, tech)}</g>
+<text x="${CW / 2}" y="395" text-anchor="middle" font-family="Menlo, monospace" font-size="30" fill="${DARK.fg}">$ We build software, tools &amp; devices.</text>
+<text x="${CW / 2}" y="445" text-anchor="middle" font-family="Menlo, monospace" font-size="22" fill="${DARK.muted}">larplabth.com</text>
+</svg>`;
+  await sharp(Buffer.from(cover)).png().toFile(`design/${file}`);
+}
 console.log('brand assets written');
