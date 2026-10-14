@@ -24,7 +24,8 @@ import {
  *
  * Expected markup (see TetrisGame.astro): [data-tetris] containing
  *   canvas[data-tetris-board], canvas[data-tetris-next], button[data-tetris-overlay]
- *   with [data-tetris-msg], [data-tetris-score|lines|best], and [data-action] pad buttons.
+ *   containing [data-tetris-screen], [data-tetris-score|lines|level|best], and
+ *   [data-action] pad buttons.
  */
 
 type State = 'idle' | 'playing' | 'paused' | 'over';
@@ -41,10 +42,10 @@ export function mountTetris(root: HTMLElement): void {
   const canvas = q<HTMLCanvasElement>('[data-tetris-board]');
   const nextCanvas = q<HTMLCanvasElement>('[data-tetris-next]');
   const overlay = q<HTMLButtonElement>('[data-tetris-overlay]');
-  const msg = q<HTMLElement>('[data-tetris-msg]');
-  const sub = q<HTMLElement>('[data-tetris-sub]');
+  const screen = q<HTMLElement>('[data-tetris-screen]');
   const scoreEl = q<HTMLElement>('[data-tetris-score]');
   const linesEl = q<HTMLElement>('[data-tetris-lines]');
+  const levelEl = q<HTMLElement>('[data-tetris-level]');
   const bestEl = q<HTMLElement>('[data-tetris-best]');
   const ctx = canvas.getContext('2d');
   const nctx = nextCanvas.getContext('2d');
@@ -92,14 +93,39 @@ export function mountTetris(root: HTMLElement): void {
     return !collides(board, piece.m, piece.x, piece.y);
   }
 
-  function setMessage(main: string, small: string) {
-    msg.textContent = main;
-    sub.textContent = small;
+  /**
+   * The start / pause / game-over screen is drawn like a terminal session.
+   * `cmd` lines are commands, `out` lines are output, `hint` is the key to press
+   * (with an optional touch-screen wording), `live` adds a blinking cursor.
+   */
+  type Line = { kind: 'cmd' | 'out' | 'hint'; text: string; touch?: string; live?: boolean };
+  function setScreen(lines: Line[]) {
+    screen.replaceChildren(
+      ...lines.map((l) => {
+        const row = document.createElement('span');
+        row.className = `game__line game__line--${l.kind}${l.live ? ' cursor' : ''}`;
+        if (l.touch) {
+          const kb = document.createElement('span');
+          kb.className = 'kb-only';
+          kb.textContent = l.text;
+          const tap = document.createElement('span');
+          tap.className = 'touch-only';
+          tap.textContent = l.touch;
+          row.append(kb, tap);
+        } else row.textContent = l.text;
+        return row;
+      }),
+    );
   }
+  const PLAY_CMD: Line[] = [
+    { kind: 'cmd', text: '$ larp --tetris' },
+    { kind: 'cmd', text: '  --play', live: true },
+  ];
 
   function updateHud() {
     scoreEl.textContent = String(score);
     linesEl.textContent = String(lines);
+    levelEl.textContent = String(levelFor(lines) + 1);
     bestEl.textContent = String(best);
   }
 
@@ -208,11 +234,16 @@ export function mountTetris(root: HTMLElement): void {
     draw();
   }
 
-  function pause(reason = 'paused') {
+  function pause() {
     if (state !== 'playing') return;
     state = 'paused';
     cancelAnimationFrame(raf);
-    setMessage(reason, 'click or press P to resume');
+    setScreen([
+      { kind: 'cmd', text: '$ larp --tetris' },
+      { kind: 'cmd', text: '  --pause' },
+      { kind: 'out', text: `> score ${score}` },
+      { kind: 'hint', text: 'P to resume', touch: 'tap to resume' },
+    ]);
     overlay.hidden = false;
     draw();
   }
@@ -229,7 +260,13 @@ export function mountTetris(root: HTMLElement): void {
       }
     }
     updateHud();
-    setMessage('game over', `score ${score}\nclick to retry`);
+    setScreen([
+      { kind: 'out', text: '> game over' },
+      { kind: 'out', text: `> score ${score}` },
+      { kind: 'out', text: `> best  ${best}` },
+      ...PLAY_CMD,
+      { kind: 'hint', text: 'enter to run again', touch: 'tap to run again' },
+    ]);
     overlay.hidden = false;
     draw();
   }
@@ -356,7 +393,7 @@ export function mountTetris(root: HTMLElement): void {
   // Pause as soon as focus leaves the game (so arrow keys go back to scrolling the page).
   root.addEventListener('focusout', (e) => {
     const next = e.relatedTarget as Node | null;
-    if (state === 'playing' && !(next && root.contains(next))) pause('paused');
+    if (state === 'playing' && !(next && root.contains(next))) pause();
   });
   document.addEventListener('visibilitychange', () => document.hidden && pause());
   onVisibility(root, (visible) => !visible && pause());
@@ -389,7 +426,7 @@ export function mountTetris(root: HTMLElement): void {
   }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
   new ResizeObserver(layout).observe(canvas);
 
-  setMessage('press enter to play', 'click here, then use the arrow keys');
+  setScreen([...PLAY_CMD, { kind: 'hint', text: 'press enter to run', touch: 'tap to run' }]);
   updateHud();
   layout();
 }

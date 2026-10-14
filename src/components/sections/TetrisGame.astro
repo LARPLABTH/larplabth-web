@@ -13,44 +13,74 @@
         aria-label="Tetris. Press Enter to start. Arrow keys move and rotate, space drops, P pauses."
       ></canvas>
       <button class="game__overlay mono" type="button" data-tetris-overlay>
-        <span class="game__msg" data-tetris-msg>
-          press enter to play
-        </span>
-        <span class="game__sub" data-tetris-sub>
-          click here, then use the arrow keys
-        </span>
+        <span class="game__screen" data-tetris-screen></span>
       </button>
     </div>
 
     <div class="game__side mono">
-      <div class="game__stat">
-        <span class="label">next</span>
-        <canvas class="game__next" data-tetris-next aria-hidden="true"></canvas>
-      </div>
-      <div class="game__stat">
-        <span class="label">score</span>
-        <span class="game__num" data-tetris-score>
-          0
-        </span>
-      </div>
-      <div class="game__stat">
-        <span class="label">lines</span>
-        <span class="game__num" data-tetris-lines>
-          0
-        </span>
-      </div>
-      <div class="game__stat">
-        <span class="label">best</span>
-        <span class="game__num" data-tetris-best>
-          0
-        </span>
-      </div>
-      <p class="game__keys game__keys--kb">
-        ← → move
-        <br />↑ rotate · ↓ soft
-        <br />
-        space drop · P pause
-      </p>
+      <ul class="game__rows">
+        <li class="row row--next">
+          <span class="row__k">next</span>
+          <span class="row__dots" aria-hidden="true"></span>
+          <canvas class="game__next" data-tetris-next aria-hidden="true"></canvas>
+        </li>
+        <li class="row">
+          <span class="row__k">score</span>
+          <span class="row__dots" aria-hidden="true"></span>
+          <span class="row__v" data-tetris-score>
+            0
+          </span>
+        </li>
+        <li class="row">
+          <span class="row__k">lines</span>
+          <span class="row__dots" aria-hidden="true"></span>
+          <span class="row__v" data-tetris-lines>
+            0
+          </span>
+        </li>
+        <li class="row">
+          <span class="row__k">level</span>
+          <span class="row__dots" aria-hidden="true"></span>
+          <span class="row__v" data-tetris-level>
+            1
+          </span>
+        </li>
+        <li class="row">
+          <span class="row__k">best</span>
+          <span class="row__dots" aria-hidden="true"></span>
+          <span class="row__v" data-tetris-best>
+            0
+          </span>
+        </li>
+      </ul>
+
+      <ul class="game__rows game__rows--keys">
+        <li class="row">
+          <span class="row__k">move</span>
+          <span class="row__dots" aria-hidden="true"></span>
+          <span class="row__v">← →</span>
+        </li>
+        <li class="row">
+          <span class="row__k">rotate</span>
+          <span class="row__dots" aria-hidden="true"></span>
+          <span class="row__v">↑</span>
+        </li>
+        <li class="row">
+          <span class="row__k">soft drop</span>
+          <span class="row__dots" aria-hidden="true"></span>
+          <span class="row__v">↓</span>
+        </li>
+        <li class="row">
+          <span class="row__k">hard drop</span>
+          <span class="row__dots" aria-hidden="true"></span>
+          <span class="row__v">space</span>
+        </li>
+        <li class="row">
+          <span class="row__k">pause</span>
+          <span class="row__dots" aria-hidden="true"></span>
+          <span class="row__v">p</span>
+        </li>
+      </ul>
     </div>
   </div>
 
@@ -115,67 +145,106 @@
     outline-offset: 4px;
   }
 
-  /* start / pause / game-over screen */
+  /* start / pause / game-over screen: drawn like a terminal session */
   .game__overlay {
     position: absolute;
     inset: 0;
     display: grid;
-    place-content: center;
-    gap: var(--s-2);
+    align-content: center;
     padding: var(--s-3);
-    background: color-mix(in srgb, var(--c-bg) 90%, transparent);
+    background: color-mix(in srgb, var(--c-bg) 92%, transparent);
     border: 0;
     color: var(--c-text);
-    text-align: center;
+    text-align: left;
     cursor: pointer;
   }
-  .game__msg {
-    font-size: var(--fs-sm);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
-  .game__sub {
-    white-space: pre-line;
+  .game__screen {
+    display: grid;
+    gap: 2px;
     font-size: var(--fs-xs);
-    line-height: 1.5;
+    line-height: 1.7;
+  }
+  .game__screen :global(.game__line) {
+    white-space: pre;
+  }
+  .game__screen :global(.game__line--out),
+  .game__screen :global(.game__line--hint) {
     color: var(--c-muted);
   }
-  .game__overlay:hover .game__msg {
-    text-decoration: underline;
-    text-underline-offset: 4px;
+  .game__screen :global(.game__line--hint) {
+    margin-top: var(--s-3);
+    padding-top: var(--s-2);
+    border-top: 1px dotted var(--c-line-strong);
+  }
+  .game__overlay:hover :global(.game__line--hint) {
+    color: var(--c-text);
   }
   .game__overlay:focus-visible {
     outline: 1px solid var(--c-signal);
     outline-offset: -4px;
   }
+  .game__screen :global(.touch-only) {
+    display: none;
+  }
 
-  /* side panel */
+  /* side panel: full-width rows with dotted leaders, like the hero terminal */
   .game__side {
-    display: grid;
-    align-content: space-between;
-    gap: var(--s-3);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: var(--s-4);
     min-width: 0;
     flex: 1;
     font-size: var(--fs-sm);
   }
-  .game__stat {
+  .game__rows {
     display: grid;
-    gap: var(--s-1);
+    gap: var(--s-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
-  .game__num {
-    font-size: var(--fs-lg);
-    line-height: 1;
+  .game__rows--keys {
+    gap: 3px;
+    font-size: var(--fs-xs);
+    color: var(--c-muted);
+  }
+  .row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6ch;
+    min-width: 0;
+  }
+  .row__k {
+    flex: none;
+    color: var(--c-muted);
+    text-transform: lowercase;
+  }
+  .row__dots {
+    flex: 1;
+    min-width: 1ch;
+    border-bottom: 1px dotted var(--c-line-strong);
+    transform: translateY(-0.28em);
+  }
+  .row__v {
+    flex: none;
+    color: var(--c-text);
     font-variant-numeric: tabular-nums;
   }
-  .game__next {
-    width: 3.6rem;
-    height: 3.6rem;
+  .row--next {
+    align-items: center;
   }
-  .game__keys {
-    margin: 0;
-    font-size: var(--fs-xs);
-    line-height: 1.7;
-    color: var(--c-muted);
+  .row--next .row__dots {
+    transform: none;
+  }
+  .row:not(.row--next) .row__v[data-tetris-score] {
+    font-size: var(--fs-lg);
+    line-height: 1;
+  }
+  .game__next {
+    flex: none;
+    width: 3rem;
+    height: 3rem;
   }
 
   .game__cap {
@@ -207,8 +276,19 @@
     .game__pad {
       display: grid;
     }
-    .game__keys--kb {
+    .game__rows--keys {
       display: none;
+    }
+    /* no key list on touch screens: spread the stats over the full board height */
+    .game__rows:first-child {
+      flex: 1;
+      align-content: space-between;
+    }
+    .game__screen :global(.kb-only) {
+      display: none;
+    }
+    .game__screen :global(.touch-only) {
+      display: inline;
     }
     .game__hint {
       font-size: 0;
