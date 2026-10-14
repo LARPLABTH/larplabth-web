@@ -43,6 +43,7 @@ export function mountTetris(root: HTMLElement): void {
   const nextCanvas = q<HTMLCanvasElement>('[data-tetris-next]');
   const overlay = q<HTMLButtonElement>('[data-tetris-overlay]');
   const screen = q<HTMLElement>('[data-tetris-screen]');
+  const toast = q<HTMLElement>('[data-tetris-toast]');
   const scoreEl = q<HTMLElement>('[data-tetris-score]');
   const linesEl = q<HTMLElement>('[data-tetris-lines]');
   const levelEl = q<HTMLElement>('[data-tetris-level]');
@@ -60,6 +61,7 @@ export function mountTetris(root: HTMLElement): void {
   let lines = 0;
   let best = 0;
   let acc = 0;
+  let toastTimer = 0;
   let last = 0;
   let raf = 0;
   let rgb = readColor();
@@ -220,6 +222,7 @@ export function mountTetris(root: HTMLElement): void {
     spawn(); // fills `piece` and leaves the following piece waiting in `queue` for the preview
     state = 'playing';
     overlay.hidden = true;
+    toast.classList.remove('is-on');
     updateHud();
     canvas.focus({ preventScroll: true });
     resume();
@@ -264,11 +267,22 @@ export function mountTetris(root: HTMLElement): void {
       { kind: 'out', text: '> game over' },
       { kind: 'out', text: `> score ${score}` },
       { kind: 'out', text: `> best  ${best}` },
+      // the board is only ~20 characters wide, so the motto wraps onto two lines
+      { kind: 'out', text: '> LARP IT TILL' },
+      { kind: 'out', text: '  YOU MAKE IT' },
       ...PLAY_CMD,
       { kind: 'hint', text: 'enter to run again', touch: 'tap to run again' },
     ]);
     overlay.hidden = false;
     draw();
+  }
+
+  /** Brief message on the board, announced to screen readers (aria-live on the element). */
+  function showToast(text: string) {
+    toast.textContent = text;
+    toast.classList.add('is-on');
+    clearTimeout(toastTimer);
+    toastTimer = window.setTimeout(() => toast.classList.remove('is-on'), 1800);
   }
 
   function lock() {
@@ -277,6 +291,7 @@ export function mountTetris(root: HTMLElement): void {
     const res = clearLines(board);
     board = res.board;
     if (res.cleared) {
+      if (lines === 0) showToast('> made it'); // first cleared line of the game
       lines += res.cleared;
       score += lineScore(res.cleared, levelFor(lines - res.cleared));
     }

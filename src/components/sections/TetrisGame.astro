@@ -12,6 +12,7 @@
         role="application"
         aria-label="Tetris. Press Enter to start. Arrow keys move and rotate, space drops, P pauses."
       ></canvas>
+      <span class="game__toast mono" data-tetris-toast role="status" aria-live="polite"></span>
       <button class="game__overlay mono" type="button" data-tetris-overlay>
         <span class="game__screen" data-tetris-screen></span>
       </button>
@@ -143,6 +144,30 @@
   .game__board:has(.game__canvas:focus-visible) {
     outline: 1px solid var(--c-signal);
     outline-offset: 4px;
+  }
+
+  /* short message that flashes on the board, e.g. "> made it" */
+  .game__toast {
+    position: absolute;
+    /* sits on the frame's top border like a label, so it never covers falling pieces */
+    top: calc(-1 * (var(--s-4) + 0.75rem));
+    left: 0;
+    z-index: 1;
+    padding: 2px 8px;
+    background: var(--c-text);
+    color: var(--c-bg);
+    font-size: var(--fs-xs);
+    letter-spacing: 0.04em;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(-4px);
+    transition:
+      opacity 160ms var(--ease),
+      transform 160ms var(--ease);
+  }
+  .game__toast.is-on {
+    opacity: 1;
+    transform: none;
   }
 
   /* start / pause / game-over screen: drawn like a terminal session */

@@ -11,6 +11,8 @@ const terminal: Line[] = [
   { kind: 'out', text: '  [devices] [maker] [consult]' },
   { kind: 'cmd', text: 'larp status' },
   { kind: 'out', text: `> lab: online · loc: ${site.location} · accepting projects` },
+  { kind: 'cmd', text: 'larp --motto' },
+  { kind: 'out', text: `> ${site.motto}` },
 ];
 ---
 
@@ -42,7 +44,7 @@ const terminal: Line[] = [
         class="term"
         data-reveal
         role="img"
-        aria-label="Terminal: larp --init loads saas, tools, services, devices, maker and consult modules; status: online, accepting projects."
+        aria-label="Terminal: larp --init loads saas, tools, services, devices, maker and consult modules; status: online, accepting projects; motto: LARP it till you make it."
       >
         <div class="term__bar" aria-hidden="true">
           <span></span>
@@ -192,7 +194,7 @@ const terminal: Line[] = [
     padding: var(--s-4) var(--s-5);
     font-size: var(--fs-sm);
     line-height: 1.75;
-    min-height: 13.5rem;
+    min-height: 16.5rem;
     overflow-x: auto;
   }
   .term__line {
