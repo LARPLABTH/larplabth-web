@@ -2,7 +2,8 @@
 /** Toggles data-theme on <html>; persists the choice. Initial theme is set inline in BaseLayout. */
 ---
 
-<button class="theme-toggle" type="button" data-theme-toggle aria-label="Toggle colour theme">
+<button class="theme-toggle" type="button" data-theme-toggle>
+  <span class="sr-only">Colour theme:</span>
   <svg viewBox="0 0 8 8" width="16" height="16" shape-rendering="crispEdges" aria-hidden="true">
     <rect
       x="0.5"
@@ -28,9 +29,6 @@
     const theme = root.dataset.theme === 'light' ? 'light' : 'dark';
     document.querySelectorAll<HTMLElement>('[data-theme-label]').forEach((el) => {
       el.textContent = theme;
-    });
-    document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]').forEach((btn) => {
-      btn.setAttribute('aria-pressed', String(theme === 'light'));
     });
     const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
     if (meta) meta.content = theme === 'light' ? '#f2f1ec' : '#0f0f0f';

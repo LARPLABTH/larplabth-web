@@ -141,7 +141,6 @@ import { nav } from '../../config/site';
     margin-right: 0.35em;
     border: 1px solid transparent;
     border-radius: 50%;
-    opacity: 0.6;
     transition:
       background var(--dur) var(--ease),
       color var(--dur) var(--ease),
@@ -150,7 +149,6 @@ import { nav } from '../../config/site';
   }
   .hdr__nav a:hover .hdr__num {
     border-color: var(--c-line-strong);
-    opacity: 1;
   }
   .hdr__nav a.is-active {
     color: var(--c-text);
@@ -159,7 +157,6 @@ import { nav } from '../../config/site';
     background: var(--c-text);
     border-color: var(--c-text);
     color: var(--c-bg);
-    opacity: 1;
   }
   .hdr__actions {
     display: flex;
@@ -254,9 +251,16 @@ import { nav } from '../../config/site';
     }
   }
   @media (max-width: 40rem) {
-    .hdr__actions :global(.hdr__cta),
-    .hdr__actions :global(.theme-toggle__label) {
+    .hdr__actions :global(.hdr__cta) {
       display: none;
+    }
+    .hdr__actions :global(.theme-toggle__label) {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
     }
   }
 </style>

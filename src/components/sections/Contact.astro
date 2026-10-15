@@ -206,12 +206,26 @@ const mailtoSubject = 'Project enquiry — via larplabth.com';
       }
     });
 
+    // Load Cloudflare Turnstile only when the form is about to be used, so visitors who
+    // never reach Contact don't download it.
     if (form.querySelector('.cf-turnstile')) {
-      const t = document.createElement('script');
-      t.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
-      t.async = true;
-      t.defer = true;
-      document.head.appendChild(t);
+      let loaded = false;
+      const loadTurnstile = () => {
+        if (loaded) return;
+        loaded = true;
+        io.disconnect();
+        const t = document.createElement('script');
+        t.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
+        t.async = true;
+        t.defer = true;
+        document.head.appendChild(t);
+      };
+      const io = new IntersectionObserver(
+        (entries) => entries.some((e) => e.isIntersecting) && loadTurnstile(),
+        { rootMargin: '600px 0px' },
+      );
+      io.observe(form);
+      form.addEventListener('focusin', loadTurnstile, { once: true });
     }
   }
 </script>

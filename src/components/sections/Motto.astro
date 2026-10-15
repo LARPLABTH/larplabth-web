@@ -11,7 +11,8 @@ const strong = new Set([0, words.length - 2, words.length - 1]);
     <p class="motto__cmd label" data-reveal>
       <span aria-hidden="true">$</span> larp --motto
     </p>
-    <p class="motto__text" aria-label={site.motto}>
+    <p class="motto__text">
+      <span class="sr-only">{site.motto}</span>
       {words.map((w, i) => (
         <span
           class:list={['motto__word', strong.has(i) && 'is-strong']}

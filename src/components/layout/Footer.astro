@@ -10,11 +10,7 @@ const year = new Date().getFullYear();
 ---
 
 <footer class="ftr">
-  <div class="ftr__bits mono" aria-hidden="true">
-    <span>
-      {binary} {binary} {binary}
-    </span>
-  </div>
+  <div class="ftr__bits mono" aria-hidden="true" data-bits={`${binary} ${binary} ${binary}`}></div>
   <div class="container ftr__inner">
     <div class="ftr__brand">
       <Logo uid="f" height={18} />
@@ -42,6 +38,9 @@ const year = new Date().getFullYear();
   .ftr {
     border-top: 1px solid var(--c-line);
     padding-bottom: calc(var(--s-6) + env(safe-area-inset-bottom, 0px));
+  }
+  .ftr__bits::before {
+    content: attr(data-bits);
   }
   .ftr__bits {
     overflow: hidden;
