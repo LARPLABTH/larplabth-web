@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import { Image } from 'astro:assets';
 import SectionHeader from '../ui/SectionHeader.astro';
+import UnderConstruction from './UnderConstruction.astro';
 
 const projects = (await getCollection('projects', (p) => !p.data.draft)).sort(
   (a, b) => a.data.order - b.data.order,
@@ -44,79 +45,87 @@ const statusLabel = {
       num="04"
       label="Lab"
       title="Things we're building."
-      lead="Products and experiments from the lab. Two are already online, and more are on the way."
+      lead={
+        projects.length
+          ? 'Products and experiments from the lab. More are on the way.'
+          : "Projects are in the workshop. We'll show them when they're ready to launch."
+      }
     />
-    <ul class="lab">
-      {projects.map((p) => {
-        const tile = (
-          <>
-            <div class="lab__art">
-              {p.data.cover ? (
-                <Image
-                  src={p.data.cover}
-                  alt={p.data.coverAlt}
-                  widths={[480, 800, 1200]}
-                  sizes="(min-width: 56rem) 760px, 100vw"
-                  loading="lazy"
-                />
-              ) : (
-                <svg viewBox="0 0 10 10" shape-rendering="crispEdges" aria-hidden="true">
-                  {identicon(p.id).map((c) => (
-                    <rect x={c.x} y={c.y} width="1" height="1" fill="currentColor" />
-                  ))}
-                </svg>
-              )}
-            </div>
-            <div class="lab__meta">
-              <p class="label">
-                <span>{p.data.category}</span>
-                <span class="lab__status" data-status={p.data.status}>
-                  {statusLabel[p.data.status]}
-                </span>
-              </p>
-              <h3 class="lab__title">
-                {p.data.title}
-                {p.data.href && (
-                  <span class="lab__go mono" aria-hidden="true">
-                    -&gt;
-                  </span>
+    {projects.length > 0 ? (
+      <ul class="lab">
+        {projects.map((p) => {
+          const tile = (
+            <>
+              <div class="lab__art">
+                {p.data.cover ? (
+                  <Image
+                    src={p.data.cover}
+                    alt={p.data.coverAlt}
+                    widths={[480, 800, 1200]}
+                    sizes="(min-width: 56rem) 760px, 100vw"
+                    loading="lazy"
+                  />
+                ) : (
+                  <svg viewBox="0 0 10 10" shape-rendering="crispEdges" aria-hidden="true">
+                    {identicon(p.id).map((c) => (
+                      <rect x={c.x} y={c.y} width="1" height="1" fill="currentColor" />
+                    ))}
+                  </svg>
                 )}
-              </h3>
-              <p class="muted">{p.data.summary}</p>
-              {p.data.href && <p class="lab__url mono">{new URL(p.data.href).host}</p>}
-            </div>
-          </>
-        );
-        return (
-          <li class:list={['lab__item', p.data.featured && 'lab__item--featured']} data-reveal>
-            {p.data.href ? (
-              <a
-                class="lab__tile"
-                href={p.data.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`${p.data.title} (opens in a new tab)`}
-              >
-                {tile}
-              </a>
-            ) : (
-              <div class="lab__tile">{tile}</div>
-            )}
-          </li>
-        );
-      })}
-      <li class="lab__item lab__next" data-reveal aria-label="Next project: coming soon">
-        <div class="lab__nextbox mono" aria-hidden="true">
-          <p>
-            <span class="muted">$</span> larp new project
-          </p>
-          <p class="muted">&gt; scaffolding next idea ...</p>
-          <p>
-            <span class="muted">$</span> <span class="cursor" />
-          </p>
-        </div>
-      </li>
-    </ul>
+              </div>
+              <div class="lab__meta">
+                <p class="label">
+                  <span>{p.data.category}</span>
+                  <span class="lab__status" data-status={p.data.status}>
+                    {statusLabel[p.data.status]}
+                  </span>
+                </p>
+                <h3 class="lab__title">
+                  {p.data.title}
+                  {p.data.href && (
+                    <span class="lab__go mono" aria-hidden="true">
+                      -&gt;
+                    </span>
+                  )}
+                </h3>
+                <p class="muted">{p.data.summary}</p>
+                {p.data.href && <p class="lab__url mono">{new URL(p.data.href).host}</p>}
+              </div>
+            </>
+          );
+          return (
+            <li class:list={['lab__item', p.data.featured && 'lab__item--featured']} data-reveal>
+              {p.data.href ? (
+                <a
+                  class="lab__tile"
+                  href={p.data.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`${p.data.title} (opens in a new tab)`}
+                >
+                  {tile}
+                </a>
+              ) : (
+                <div class="lab__tile">{tile}</div>
+              )}
+            </li>
+          );
+        })}
+        <li class="lab__item lab__next" data-reveal aria-label="Next project: coming soon">
+          <div class="lab__nextbox mono" aria-hidden="true">
+            <p>
+              <span class="muted">$</span> larp new project
+            </p>
+            <p class="muted">&gt; scaffolding next idea ...</p>
+            <p>
+              <span class="muted">$</span> <span class="cursor" />
+            </p>
+          </div>
+        </li>
+      </ul>
+    ) : (
+      <UnderConstruction />
+    )}
   </div>
 </section>
 

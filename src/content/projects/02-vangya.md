@@ -3,6 +3,7 @@ title: VangYa (วางยา)
 order: 2
 category: tool
 status: in-progress
+draft: true # hidden until launch
 href: https://vangya.larplabth.com
 cover: ../../assets/projects/vangya.png
 coverAlt: 'VangYa home page: "Drug information that is easy to read and trustworthy", with a search box and drug groups'

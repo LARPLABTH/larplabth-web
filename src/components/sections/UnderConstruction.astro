@@ -1,0 +1,138 @@
+---
+/**
+ * Shown in the Lab section while no project is public: a pixel scene of a LARPer and an
+ * AI building a rocket that isn't ready to launch yet. Logic: src/scripts/fx/construction.ts
+ */
+---
+
+<figure class="uc" data-reveal>
+  <div class="uc__frame">
+    <canvas class="uc__canvas" data-construction aria-hidden="true"></canvas>
+    <span class="uc__tick uc__tick--tl" aria-hidden="true"></span>
+    <span class="uc__tick uc__tick--tr" aria-hidden="true"></span>
+    <span class="uc__tick uc__tick--bl" aria-hidden="true"></span>
+    <span class="uc__tick uc__tick--br" aria-hidden="true"></span>
+  </div>
+
+  <figcaption class="uc__text">
+    <p class="uc__cap label">Fig.02 — larper + ai</p>
+    <p class="uc__th" lang="th">
+      กำลังสร้าง
+      <br />
+      มองข้ามไปก่อน
+    </p>
+    <p class="uc__en">
+      Under construction. Skip ahead for now — we'll show our projects when they're ready to launch.
+    </p>
+    <div class="uc__cli mono" aria-hidden="true">
+      <p>
+        <span class="muted">$</span> larp build --lab
+      </p>
+      <p class="muted" data-construction-progress>
+        &gt; progress .......... 0%
+      </p>
+    </div>
+    <a class="uc__skip mono" href="#stack">
+      skip ahead <span aria-hidden="true">-&gt;</span>
+    </a>
+  </figcaption>
+</figure>
+
+<script>
+  import { mountConstruction } from '../../scripts/fx/construction';
+  document.querySelectorAll<HTMLElement>('.uc').forEach((root) => {
+    const canvas = root.querySelector<HTMLCanvasElement>('[data-construction]');
+    if (canvas) mountConstruction(canvas, root.querySelector('[data-construction-progress]'));
+  });
+</script>
+
+<style>
+  .uc {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    gap: var(--s-7);
+    align-items: center;
+  }
+  .uc__frame {
+    position: relative;
+    border: 1px solid var(--c-line);
+    background: var(--c-bg);
+    padding: var(--s-3);
+  }
+  .uc__canvas {
+    display: block;
+    width: 100%;
+    aspect-ratio: 64 / 24;
+  }
+  .uc__tick {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border: 0 solid var(--c-text);
+  }
+  .uc__tick--tl {
+    top: -1px;
+    left: -1px;
+    border-top-width: 1px;
+    border-left-width: 1px;
+  }
+  .uc__tick--tr {
+    top: -1px;
+    right: -1px;
+    border-top-width: 1px;
+    border-right-width: 1px;
+  }
+  .uc__tick--bl {
+    bottom: -1px;
+    left: -1px;
+    border-bottom-width: 1px;
+    border-left-width: 1px;
+  }
+  .uc__tick--br {
+    bottom: -1px;
+    right: -1px;
+    border-bottom-width: 1px;
+    border-right-width: 1px;
+  }
+
+  .uc__text {
+    display: grid;
+    gap: var(--s-4);
+    align-content: center;
+  }
+  .uc__th {
+    font-family: 'Sukhumvit Set', 'Thonburi', 'Leelawadee UI', 'Noto Sans Thai', var(--f-sans);
+    font-size: var(--fs-xl);
+    font-weight: 500;
+    line-height: 1.35;
+  }
+  .uc__en {
+    color: var(--c-muted);
+    font-size: var(--fs-sm);
+    max-width: 30rem;
+  }
+  .uc__cli {
+    font-size: var(--fs-xs);
+    line-height: 1.8;
+  }
+  .uc__cli p {
+    white-space: pre;
+  }
+  .uc__skip {
+    justify-self: start;
+    font-size: var(--fs-sm);
+    color: var(--c-text);
+    border-bottom: 1px solid var(--c-line-strong);
+    transition: border-color var(--dur) var(--ease);
+  }
+  .uc__skip:hover {
+    border-color: var(--c-text);
+  }
+
+  @media (max-width: 56rem) {
+    .uc {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--s-5);
+    }
+  }
+</style>

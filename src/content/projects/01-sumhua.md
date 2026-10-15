@@ -3,6 +3,7 @@ title: Sumhua (สุมหัว)
 order: 1
 category: saas
 status: in-progress
+draft: true # hidden until launch
 href: https://sumhua.larplabth.com
 cover: ../../assets/projects/sumhua.png
 coverAlt: 'Sumhua landing page: "Put your heads together." with Host a session and Join buttons'
