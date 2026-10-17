@@ -40,7 +40,6 @@ const jsonLd = {
       },
       image: new URL(site.ogImage, site.url).href,
       areaServed: 'TH',
-      address: { '@type': 'PostalAddress', addressCountry: 'TH' },
       sameAs: site.socials.map((s) => s.href),
     },
     {
