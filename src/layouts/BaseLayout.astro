@@ -22,16 +22,36 @@ const pageTitle = title ? `${title} — ${site.name}` : `${site.name} — ${site
 const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url).href;
 const ogImage = new URL(image, Astro.site ?? site.url).href;
 
+const orgId = `${site.url}/#organization`;
 const jsonLd = {
   '@context': 'https://schema.org',
-  '@type': 'Organization',
-  name: site.name,
-  url: site.url,
-  description: site.description,
-  slogan: site.motto,
-  logo: new URL('/favicon.svg', site.url).href,
-  areaServed: 'TH',
-  sameAs: site.socials.map((s) => s.href),
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': orgId,
+      name: site.name,
+      alternateName: 'LARP LAB',
+      url: site.url,
+      description: site.description,
+      slogan: site.motto,
+      logo: {
+        '@type': 'ImageObject',
+        url: new URL('/apple-touch-icon.png', site.url).href,
+      },
+      image: new URL(site.ogImage, site.url).href,
+      areaServed: 'TH',
+      address: { '@type': 'PostalAddress', addressCountry: 'TH' },
+      sameAs: site.socials.map((s) => s.href),
+    },
+    {
+      '@type': 'WebSite',
+      '@id': `${site.url}/#website`,
+      url: site.url,
+      name: site.name,
+      inLanguage: 'en',
+      publisher: { '@id': orgId },
+    },
+  ],
 };
 ---
 

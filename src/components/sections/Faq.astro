@@ -6,8 +6,26 @@ const entries = (await getCollection('faq')).sort((a, b) => a.data.order - b.dat
 const items = await Promise.all(
   entries.map(async (e) => ({ ...e, Content: (await render(e)).Content })),
 );
+
+// FAQPage structured data from the same entries, with markdown stripped to plain text.
+const plain = (md: string) =>
+  md
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/[*_`>#]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+const faqLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: entries.map((e) => ({
+    '@type': 'Question',
+    name: e.data.question,
+    acceptedAnswer: { '@type': 'Answer', text: plain(e.body ?? '') },
+  })),
+};
 ---
 
+<script type="application/ld+json" set:html={JSON.stringify(faqLd)} />
 <section class="section" id="faq" aria-labelledby="faq-title">
   <div class="container faq">
     <SectionHeader id="faq-title" num="06" label="FAQ" title="Questions, answered." />
