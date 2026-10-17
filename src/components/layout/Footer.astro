@@ -1,5 +1,6 @@
 ---
 import Logo from '../brand/Logo.astro';
+import PixelIcon from '../ui/PixelIcon.astro';
 import { nav, site } from '../../config/site';
 
 // Easter egg: the team name in 8-bit binary.
@@ -14,7 +15,23 @@ const year = new Date().getFullYear();
   <div class="container ftr__inner">
     <div class="ftr__brand">
       <Logo uid="f" height={18} />
-      <p class="muted">{site.tagline}</p>
+      <p class="ftr__tag">{site.tagline}</p>
+      <ul class="ftr__social" aria-label="Social links">
+        {site.socials.map((x) => (
+          <li>
+            <a
+              class="ftr__icon"
+              href={x.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`${x.label}: ${x.handle}`}
+              title={x.label}
+            >
+              <PixelIcon name={x.icon} size={22} />
+            </a>
+          </li>
+        ))}
+      </ul>
     </div>
     <nav aria-label="Footer">
       <ul class="ftr__nav">
@@ -25,15 +42,6 @@ const year = new Date().getFullYear();
         ))}
       </ul>
     </nav>
-    <ul class="ftr__social mono" aria-label="Social links">
-      {site.socials.map((x) => (
-        <li>
-          <a href={x.href} target="_blank" rel="noopener noreferrer">
-            {x.label.toLowerCase()} <span aria-hidden="true">↗</span>
-          </a>
-        </li>
-      ))}
-    </ul>
     <div class="ftr__meta label">
       <span>
         © {year} {site.name}
@@ -86,28 +94,45 @@ const year = new Date().getFullYear();
     padding-block: 0.2rem;
   }
   .ftr__nav a {
-    color: var(--c-muted);
+    color: var(--c-text);
+    opacity: 0.8;
+  }
+  .ftr__nav a:hover {
+    opacity: 1;
   }
   .ftr__nav a:hover,
   .ftr__meta a:hover {
     color: var(--c-text);
   }
+  .ftr__tag {
+    color: var(--c-text);
+    opacity: 0.85;
+  }
   .ftr__social {
-    grid-column: 1 / -1;
     display: flex;
     flex-wrap: wrap;
-    gap: var(--s-2) var(--s-6);
+    gap: var(--s-3);
     list-style: none;
-    margin: 0;
+    margin: var(--s-4) 0 0;
     padding: 0;
-    font-size: var(--fs-sm);
   }
-  .ftr__social a {
-    color: var(--c-muted);
-    transition: color var(--dur) var(--ease);
-  }
-  .ftr__social a:hover {
+  .ftr__icon {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid var(--c-line-strong);
     color: var(--c-text);
+    transition:
+      background var(--dur) var(--ease),
+      color var(--dur) var(--ease),
+      border-color var(--dur) var(--ease);
+  }
+  .ftr__icon:hover,
+  .ftr__icon:focus-visible {
+    background: var(--c-text);
+    border-color: var(--c-text);
+    color: var(--c-bg);
   }
   .ftr__link {
     padding: 0;
@@ -123,6 +148,8 @@ const year = new Date().getFullYear();
     color: var(--c-text);
   }
   .ftr__meta {
+    color: var(--c-text);
+    opacity: 0.75;
     grid-column: 1 / -1;
     display: flex;
     flex-wrap: wrap;

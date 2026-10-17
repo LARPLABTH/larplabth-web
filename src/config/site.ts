@@ -25,12 +25,23 @@ export const site = {
   socials: [
     {
       label: 'Facebook',
+      icon: 'facebook',
       handle: 'LARP LAB TH',
       href: 'https://www.facebook.com/profile.php?id=61595003986457',
     },
-    { label: 'Instagram', handle: '@larplab.th', href: 'https://www.instagram.com/larplab.th/' },
-    { label: 'GitHub', handle: 'LARPLABTH', href: 'https://github.com/LARPLABTH' },
-  ] as { label: string; handle: string; href: string }[],
+    {
+      label: 'Instagram',
+      icon: 'instagram',
+      handle: '@larplab.th',
+      href: 'https://www.instagram.com/larplab.th/',
+    },
+    { label: 'GitHub', icon: 'github', handle: 'LARPLABTH', href: 'https://github.com/LARPLABTH' },
+  ] as {
+    label: string;
+    icon: 'facebook' | 'instagram' | 'github';
+    handle: string;
+    href: string;
+  }[],
 } as const;
 
 export const nav = [

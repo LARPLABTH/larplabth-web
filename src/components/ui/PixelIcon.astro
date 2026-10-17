@@ -1,0 +1,25 @@
+---
+import { ICONS, type IconName } from '../../config/icons';
+interface Props {
+  name: IconName;
+  size?: number;
+  class?: string;
+}
+const { name, size = 24, class: className } = Astro.props;
+const cells = ICONS[name].flatMap((row, y) =>
+  [...row].map((c, x) => (c === '#' ? { x, y } : null)).filter((p) => p !== null),
+);
+---
+
+<svg
+  class:list={['pixel-icon', className]}
+  width={size}
+  height={size}
+  viewBox="0 0 12 12"
+  shape-rendering="crispEdges"
+  aria-hidden="true"
+>
+  {cells.map((p) => (
+    <rect x={p.x} y={p.y} width="1" height="1" fill="currentColor" />
+  ))}
+</svg>
