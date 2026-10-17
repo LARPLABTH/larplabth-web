@@ -1,4 +1,5 @@
 import { onVisibility } from './reducedMotion';
+import { CONSENT_EVENT, prefGet, prefSet } from '../consent';
 import {
   COLS,
   ROWS,
@@ -35,7 +36,7 @@ interface Active {
   y: number;
 }
 
-const BEST_KEY = 'larp-tetris-best';
+const BEST_KEY = 'larp-tetris-best' as const;
 
 export function mountTetris(root: HTMLElement): void {
   const q = <T extends HTMLElement>(sel: string) => root.querySelector<T>(sel)!;
@@ -66,11 +67,7 @@ export function mountTetris(root: HTMLElement): void {
   let raf = 0;
   let rgb = readColor();
 
-  try {
-    best = Number(localStorage.getItem(BEST_KEY)) || 0;
-  } catch {
-    /* storage unavailable */
-  }
+  best = Number(prefGet(BEST_KEY)) || 0; // only read back if the visitor accepted storage
 
   // ---------- helpers ----------
   function readColor(): string {
@@ -256,11 +253,7 @@ export function mountTetris(root: HTMLElement): void {
     cancelAnimationFrame(raf);
     if (score > best) {
       best = score;
-      try {
-        localStorage.setItem(BEST_KEY, String(best));
-      } catch {
-        /* ignore */
-      }
+      prefSet(BEST_KEY, String(best)); // only saved if the visitor accepted storage
     }
     updateHud();
     setScreen([
@@ -440,6 +433,9 @@ export function mountTetris(root: HTMLElement): void {
     draw();
   }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
   new ResizeObserver(layout).observe(canvas);
+
+  // accepting storage after a good game still saves that game's best
+  document.addEventListener(CONSENT_EVENT, () => best && prefSet(BEST_KEY, String(best)));
 
   setScreen([...PLAY_CMD, { kind: 'hint', text: 'press enter to run', touch: 'tap to run' }]);
   updateHud();

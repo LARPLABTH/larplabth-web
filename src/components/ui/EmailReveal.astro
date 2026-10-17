@@ -1,0 +1,110 @@
+---
+/**
+ * Click-to-reveal email. The address is NOT in the page HTML: it is shipped base64-encoded
+ * and decoded only when a visitor clicks. Keeps it out of simple scrapers; not strong secrecy.
+ */
+import { site } from '../../config/site';
+
+interface Props {
+  subject?: string;
+  label?: string;
+}
+const { subject = 'Project enquiry — via larplabth.com', label = 'show email address' } =
+  Astro.props;
+const encoded = Buffer.from(site.email).toString('base64');
+---
+
+<div class="reveal" data-email-reveal data-e={encoded} data-subject={subject}>
+  <button class="reveal__btn mono" type="button" aria-expanded="false" data-reveal-btn>
+    <span>{label}</span>
+    <span aria-hidden="true">-&gt;</span>
+  </button>
+  <div class="reveal__addr" hidden data-reveal-addr>
+    <a class="reveal__link" data-addr-link></a>
+    <button class="copy mono" type="button" data-copy-addr>
+      <span data-copy-label>copy address</span>
+    </button>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-email-reveal]').forEach((reveal) => {
+    const btn = reveal.querySelector<HTMLButtonElement>('[data-reveal-btn]')!;
+    const box = reveal.querySelector<HTMLElement>('[data-reveal-addr]')!;
+    const link = reveal.querySelector<HTMLAnchorElement>('[data-addr-link]')!;
+    const copyBtn = reveal.querySelector<HTMLButtonElement>('[data-copy-addr]')!;
+    const label = copyBtn.querySelector<HTMLElement>('[data-copy-label]')!;
+    let address = '';
+
+    btn.addEventListener('click', () => {
+      address = atob(reveal.dataset.e ?? '');
+      link.textContent = address;
+      link.href = `mailto:${address}?subject=${encodeURIComponent(reveal.dataset.subject ?? '')}`;
+      btn.hidden = true;
+      btn.setAttribute('aria-expanded', 'true');
+      box.hidden = false;
+      link.focus();
+    });
+
+    copyBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(address);
+        label.textContent = 'copied ✓';
+      } catch {
+        label.textContent = 'copy failed';
+      }
+      setTimeout(() => (label.textContent = 'copy address'), 1800);
+    });
+  });
+</script>
+
+<style>
+  .reveal__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.8rem 1.1rem;
+    background: none;
+    border: 1px solid var(--c-line-strong);
+    border-radius: var(--radius);
+    color: var(--c-text);
+    font-size: var(--fs-sm);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition:
+      border-color var(--dur) var(--ease),
+      background var(--dur) var(--ease);
+  }
+  .reveal__btn:hover {
+    border-color: var(--c-text);
+    background: var(--c-surface);
+  }
+  .reveal__addr {
+    display: grid;
+    gap: var(--s-2);
+    justify-items: start;
+  }
+  .reveal__link {
+    font-size: var(--fs-lg);
+    letter-spacing: -0.02em;
+    overflow-wrap: anywhere;
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 100% 1px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+  }
+  .copy {
+    background: none;
+    border: 0;
+    padding: 0.2rem 0;
+    font-size: var(--fs-sm);
+    color: var(--c-muted);
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  .copy:hover {
+    color: var(--c-text);
+  }
+</style>

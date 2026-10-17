@@ -22,8 +22,10 @@
 </button>
 
 <script>
+  import { CONSENT_EVENT, prefGet, prefSet } from '../../scripts/consent';
+
   const root = document.documentElement;
-  const KEY = 'theme';
+  let chosen = false; // the visitor toggled the theme during this visit
 
   function sync() {
     const theme = root.dataset.theme === 'light' ? 'light' : 'dark';
@@ -37,24 +39,20 @@
   document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]').forEach((btn) => {
     btn.addEventListener('click', () => {
       root.dataset.theme = root.dataset.theme === 'light' ? 'dark' : 'light';
-      try {
-        localStorage.setItem(KEY, root.dataset.theme);
-      } catch {
-        /* storage unavailable — choice lasts for this page view */
-      }
+      chosen = true;
+      prefSet('theme', root.dataset.theme); // saved only if the visitor accepted storage
       sync();
     });
   });
 
+  // If they accept storage after already picking a theme, remember that pick.
+  document.addEventListener(CONSENT_EVENT, () => {
+    if (chosen) prefSet('theme', root.dataset.theme ?? 'dark');
+  });
+
   // Follow the OS while the visitor hasn't chosen explicitly.
   window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', (e) => {
-    let stored: string | null = null;
-    try {
-      stored = localStorage.getItem(KEY);
-    } catch {
-      /* ignore */
-    }
-    if (stored) return;
+    if (chosen || prefGet('theme')) return;
     root.dataset.theme = e.matches ? 'light' : 'dark';
     sync();
   });

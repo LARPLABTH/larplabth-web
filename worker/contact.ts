@@ -34,6 +34,15 @@ const oneLine = (s: string, max: number) =>
     .trim()
     .slice(0, max);
 
+/** Version of the Terms + Privacy text the form currently asks people to accept (keep in sync with site.ts). */
+const LEGAL_VERSION = '2026-10-17';
+const TOPICS: Record<string, string> = {
+  build: 'build something',
+  consulting: 'consulting',
+  join: 'join the team',
+  hello: 'just saying hi',
+};
+
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 export const handleContact = async (request: Request, env: ContactEnv): Promise<Response> => {
@@ -57,10 +66,14 @@ export const handleContact = async (request: Request, env: ContactEnv): Promise<
   const email = oneLine(str('email'), 200);
   const company = oneLine(str('company'), 120);
   const message = str('message').replace(/\r\n/g, '\n').trim().slice(0, 5000);
+  const topic = TOPICS[str('topic')] ?? TOPICS.build!;
+  const marketing = data.marketing === true;
 
   if (!name) return json({ ok: false, error: 'name_required' }, 400);
   if (!EMAIL_RE.test(email)) return json({ ok: false, error: 'email_invalid' }, 400);
   if (message.length < 10) return json({ ok: false, error: 'message_too_short' }, 400);
+  // Terms + Privacy must be explicitly accepted (a ticked box, not a default).
+  if (data.terms !== true) return json({ ok: false, error: 'terms_required' }, 400);
 
   if (env.TURNSTILE_SECRET) {
     const token = str('turnstileToken');
@@ -87,8 +100,12 @@ export const handleContact = async (request: Request, env: ContactEnv): Promise<
       from: env.CONTACT_FROM ?? 'LARP LAB TH <onboarding@resend.dev>',
       to: [env.CONTACT_TO ?? 'larplab.th@gmail.com'],
       reply_to: email,
-      subject: oneLine(`[larplabth.com] ${name}${company ? ` (${company})` : ''}`, 150),
-      text: `Name: ${name}\nEmail: ${email}\nCompany: ${company || '-'}\n\n${message}\n`,
+      subject: oneLine(`[larplabth.com] ${name}${company ? ` (${company})` : ''} — ${topic}`, 150),
+      // The consent lines are our record of what the sender agreed to (PDPA).
+      text:
+        `Topic: ${topic}\nName: ${name}\nEmail: ${email}\nCompany: ${company || '-'}\n\n${message}\n\n--\n` +
+        `Terms + Privacy accepted: yes (version ${LEGAL_VERSION}, ${new Date().toISOString()})\n` +
+        `Email updates: ${marketing ? 'YES - sender opted in' : 'no'}\n`,
     }),
   });
 

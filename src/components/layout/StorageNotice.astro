@@ -1,0 +1,132 @@
+---
+/** Storage notice (cookies / local storage). Choice is saved by src/scripts/consent.ts. */
+---
+
+<aside class="sn" data-storage-notice role="region" aria-label="Storage notice" hidden>
+  <p class="sn__cmd mono">
+    <span class="muted">$</span> larp storage
+  </p>
+  <p class="sn__text">
+    We keep two small things in your browser — your light/dark choice and your Tetris best score —
+    but only if you say yes. No ads, no tracking cookies. The contact form uses Cloudflare Turnstile
+    to block bots, and Cloudflare counts visits without cookies.{' '}
+    <a href="/privacy#storage">Details</a>
+  </p>
+  <div class="sn__btns mono">
+    <button type="button" class="sn__btn sn__btn--yes" data-consent="yes">
+      accept
+    </button>
+    <button type="button" class="sn__btn" data-consent="no">
+      essential only
+    </button>
+  </div>
+</aside>
+
+<script>
+  import { CONSENT_EVENT, OPEN_EVENT, readConsent, saveConsent } from '../../scripts/consent';
+
+  const box = document.querySelector<HTMLElement>('[data-storage-notice]');
+  if (box) {
+    const show = () => {
+      box.hidden = false;
+      requestAnimationFrame(() => box.classList.add('is-in'));
+    };
+    const hide = () => {
+      box.classList.remove('is-in');
+      setTimeout(() => (box.hidden = true), 250);
+    };
+
+    // first visit: wait a moment so the notice never competes with the page loading
+    if (!readConsent()) setTimeout(show, 1500);
+
+    box.querySelectorAll<HTMLButtonElement>('[data-consent]').forEach((btn) =>
+      btn.addEventListener('click', () => {
+        saveConsent(btn.dataset.consent === 'yes');
+        hide();
+      }),
+    );
+
+    // "Storage settings" links in the footer / privacy page reopen it
+    document.addEventListener(OPEN_EVENT, () => {
+      if (box.hidden) show();
+      box.querySelector<HTMLButtonElement>('[data-consent]')?.focus();
+    });
+    document.addEventListener('click', (e) => {
+      if ((e.target as HTMLElement).closest('[data-open-consent]')) {
+        e.preventDefault();
+        document.dispatchEvent(new CustomEvent(OPEN_EVENT));
+      }
+    });
+    document.addEventListener(CONSENT_EVENT, () => {
+      if (!box.hidden) hide();
+    });
+  }
+</script>
+
+<style>
+  .sn {
+    position: fixed;
+    left: var(--s-4);
+    bottom: calc(var(--s-4) + env(safe-area-inset-bottom, 0px));
+    z-index: 60;
+    display: grid;
+    gap: var(--s-3);
+    width: min(26rem, calc(100vw - 2 * var(--s-4)));
+    padding: var(--s-4) var(--s-5);
+    background: var(--c-surface);
+    border: 1px solid var(--c-line-strong);
+    opacity: 0;
+    transform: translateY(12px);
+    transition:
+      opacity 240ms var(--ease),
+      transform 240ms var(--ease);
+  }
+  .sn.is-in {
+    opacity: 1;
+    transform: none;
+  }
+  .sn__cmd {
+    font-size: var(--fs-xs);
+  }
+  .sn__text {
+    font-size: var(--fs-xs);
+    line-height: 1.65;
+    color: var(--c-muted);
+  }
+  .sn__text a {
+    color: var(--c-text);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .sn__btns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2);
+  }
+  .sn__btn {
+    padding: 0.55rem 0.9rem;
+    background: none;
+    border: 1px solid var(--c-line-strong);
+    border-radius: var(--radius);
+    color: var(--c-text);
+    font-size: var(--fs-xs);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition:
+      background var(--dur) var(--ease),
+      border-color var(--dur) var(--ease);
+  }
+  .sn__btn:hover {
+    border-color: var(--c-text);
+  }
+  .sn__btn--yes {
+    background: var(--c-text);
+    color: var(--c-bg);
+    border-color: var(--c-text);
+  }
+  .sn__btn--yes:hover {
+    background: transparent;
+    color: var(--c-text);
+  }
+</style>

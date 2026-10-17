@@ -1,0 +1,186 @@
+---
+import LegalLayout from '../layouts/LegalLayout.astro';
+import EmailReveal from '../components/ui/EmailReveal.astro';
+import { site } from '../config/site';
+---
+
+<LegalLayout
+  title="Privacy Policy"
+  num="§"
+  label="Privacy"
+  description={`How ${site.name} handles personal data and what this website stores in your browser.`}
+>
+  <h2>1. Who is responsible</h2>
+  <p>
+    <strong>{site.name}</strong>, a team of college students in Thailand, decides how your personal
+    data from this website is used (the "data controller" under Thailand's Personal Data Protection
+    Act B.E. 2562, "PDPA"). We are staying anonymous for now. Contact us about your data here:
+  </p>
+  <p>
+    <EmailReveal subject="Privacy request — larplabth.com" label="show privacy contact" />
+  </p>
+
+  <h2>2. What we collect, and why</h2>
+  <div class="legal__scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Why</th>
+          <th>Basis</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <strong>Contact form:</strong> name, email, company (optional), topic, your message
+          </td>
+          <td>To read your message and reply to it</td>
+          <td>Your request / consent (you send it and accept this policy)</td>
+        </tr>
+        <tr>
+          <td>
+            <strong>Your choices:</strong> that you accepted the Terms and this policy (with the
+            version and time), and whether you want email updates
+          </td>
+          <td>To be able to show what you agreed to, and to respect your choice</td>
+          <td>Legal obligation / consent</td>
+        </tr>
+        <tr>
+          <td>
+            <strong>Technical data</strong> (IP address, browser type) handled by Cloudflare
+          </td>
+          <td>To deliver the site, block bots and spam, and keep it secure</td>
+          <td>Legitimate interest</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    We don't have user accounts, don't sell personal data and don't run advertising or tracking
+    cookies. We don't ask for sensitive data; please don't put any in your message.
+  </p>
+
+  <h2>3. Email updates</h2>
+  <p>
+    We send updates <strong>only if you tick the separate, optional box</strong> on the contact
+    form. Unticked means no marketing email. You can withdraw at any time by writing to us; we will
+    stop. Replying to your message is not marketing.
+  </p>
+
+  <h2>4. Who handles your data for us</h2>
+  <ul>
+    <li>
+      <strong>Cloudflare</strong> hosts the site, runs the contact form's backend and the Turnstile
+      bot check, and provides privacy-friendly visit counts without cookies.
+    </li>
+    <li>
+      <strong>Resend</strong> delivers the contact-form email to us.
+    </li>
+    <li>
+      <strong>Google (Gmail)</strong> is where our team's inbox is kept.
+    </li>
+  </ul>
+  <p>
+    These providers operate outside Thailand, so your data may be processed abroad under their own
+    safeguards and policies.
+  </p>
+
+  <h2>5. How long we keep it</h2>
+  <ul>
+    <li>
+      Messages that don't lead to a project: up to <strong>12 months</strong>, then deleted.
+    </li>
+    <li>If we work together: for as long as the work and our records need.</li>
+    <li>Email-update opt-ins: until you withdraw.</li>
+  </ul>
+
+  <h2 id="storage">6. Cookies and local storage</h2>
+  <p>
+    We don't use advertising or tracking cookies. This is everything the site can keep in your
+    browser, and what it is for:
+  </p>
+  <div class="legal__scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>What it does</th>
+          <th>When it is saved</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <code>larp-consent</code>
+          </td>
+          <td>Remembers your choice on the storage notice so we don't ask every visit</td>
+          <td>Essential — always, once you choose</td>
+        </tr>
+        <tr>
+          <td>
+            <code>theme</code>
+          </td>
+          <td>Remembers light or dark mode</td>
+          <td>Only if you accept storage</td>
+        </tr>
+        <tr>
+          <td>
+            <code>larp-tetris-best</code>
+          </td>
+          <td>Remembers your best Tetris score</td>
+          <td>Only if you accept storage</td>
+        </tr>
+        <tr>
+          <td>Cloudflare Turnstile</td>
+          <td>
+            Bot check, loaded only when you use the contact form; Cloudflare sets what it needs to
+            run the check
+          </td>
+          <td>Security — only when you use the form</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    Choosing "essential only" keeps the site fully working, it just won't save your theme or score,
+    and removes them if they were saved. You can change your mind any time:
+    <button type="button" class="legal__btn mono" data-open-consent>
+      open storage settings
+    </button>
+  </p>
+
+  <h2>7. Your rights</h2>
+  <p>Under the PDPA you can ask us to:</p>
+  <ul>
+    <li>tell you what data we hold about you and give you a copy,</li>
+    <li>correct it, or delete it,</li>
+    <li>stop using it, or object to how it is used,</li>
+    <li>withdraw your consent at any time (this doesn't affect what we did before).</li>
+  </ul>
+  <p>
+    Write to us using the privacy contact above and we'll answer. If you're not happy, you can
+    complain to Thailand's Personal Data Protection Committee.
+  </p>
+
+  <h2>8. Changes</h2>
+  <p>
+    If we change this policy the version number above changes. The version you accepted is saved
+    with your message.
+  </p>
+</LegalLayout>
+
+<style>
+  .legal__btn {
+    padding: 0;
+    background: none;
+    border: 0;
+    border-bottom: 1px solid var(--c-line-strong);
+    color: var(--c-text);
+    font-size: var(--fs-sm);
+    cursor: pointer;
+  }
+  .legal__btn:hover {
+    border-color: var(--c-text);
+  }
+</style>

@@ -14,16 +14,23 @@ export const site = {
   location: 'Thailand',
   foundedYear: 2026,
   ogImage: '/og-default.png',
+  /** version of the Terms + Privacy text; sent with each form submission as proof of what was accepted */
+  legalVersion: '2026-10-17',
   contactForm: {
     // Needs RESEND_API_KEY set as a secret on the Worker (see worker/contact.ts).
     enabled: true,
     // Public Turnstile site key (safe to commit). Leave empty to skip the captcha widget.
     turnstileSiteKey: '0x4AAAAAAFVzmMoNyDMoGUSk',
   },
-  socials: [{ label: 'GitHub', href: 'https://github.com/LARPLABTH' }] as {
-    label: string;
-    href: string;
-  }[],
+  socials: [
+    {
+      label: 'Facebook',
+      handle: 'LARP LAB TH',
+      href: 'https://www.facebook.com/profile.php?id=61595003986457',
+    },
+    { label: 'Instagram', handle: '@larplab.th', href: 'https://www.instagram.com/larplab.th/' },
+    { label: 'GitHub', handle: 'LARPLABTH', href: 'https://github.com/LARPLABTH' },
+  ] as { label: string; handle: string; href: string }[],
 } as const;
 
 export const nav = [

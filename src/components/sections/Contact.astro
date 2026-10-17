@@ -1,19 +1,21 @@
 ---
 import SectionHeader from '../ui/SectionHeader.astro';
+import EmailReveal from '../ui/EmailReveal.astro';
 import { site } from '../../config/site';
 
 /**
  * The form posts to the Worker in worker/contact.ts. It stays hidden (the decorative terminal
  * shows instead) until `site.contactForm.enabled` is true.
- *
- * The email address is NOT written into the page: it is shipped base64-encoded and only
- * decoded and shown when a visitor clicks "show email address". This keeps it out of simple
- * scrapers; it is not strong secrecy.
  */
 const FORM_ENABLED = site.contactForm.enabled;
 const siteKey = site.contactForm.turnstileSiteKey;
-const encodedEmail = Buffer.from(site.email).toString('base64');
-const mailtoSubject = 'Project enquiry — via larplabth.com';
+
+const topics = [
+  { value: 'build', label: 'build something' },
+  { value: 'consulting', label: 'consulting' },
+  { value: 'join', label: 'join the team' },
+  { value: 'hello', label: 'just say hi' },
+];
 ---
 
 <section class="section contact" id="contact" aria-labelledby="contact-title">
@@ -28,33 +30,26 @@ const mailtoSubject = 'Project enquiry — via larplabth.com';
 
     <div class="contact__grid">
       <div class="contact__direct" data-reveal>
-        <p class="label">Prefer email?</p>
-        <div class="reveal" data-email-reveal data-e={encodedEmail} data-subject={mailtoSubject}>
-          <button class="reveal__btn mono" type="button" aria-expanded="false" data-reveal-btn>
-            <span>show email address</span>
-            <span aria-hidden="true">-&gt;</span>
-          </button>
-          <div class="reveal__addr" hidden data-reveal-addr>
-            <a class="reveal__link" data-addr-link></a>
-            <button class="copy mono" type="button" data-copy-addr>
-              <span data-copy-label>copy address</span>
-            </button>
-          </div>
-        </div>
+        <p class="label">Find us</p>
+        <ul class="rows">
+          {site.socials.map((s) => (
+            <li>
+              <a class="rows__item" href={s.href} target="_blank" rel="noopener noreferrer">
+                <span class="rows__k mono">{s.label.toLowerCase()}</span>
+                <span class="rows__dots" aria-hidden="true" />
+                <span class="rows__v mono">
+                  {s.handle} <span aria-hidden="true">↗</span>
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+
+        <p class="label contact__sub">Prefer email?</p>
+        <EmailReveal />
         <p class="contact__note muted">
           The form is the fastest way to reach us. We reply within 12 hours.
         </p>
-        {site.socials.length > 0 && (
-          <ul class="socials">
-            {site.socials.map((s) => (
-              <li>
-                <a href={s.href} target="_blank" rel="noopener noreferrer">
-                  {s.label} ↗
-                </a>
-              </li>
-            ))}
-          </ul>
-        )}
       </div>
 
       {FORM_ENABLED ? (
@@ -63,22 +58,37 @@ const mailtoSubject = 'Project enquiry — via larplabth.com';
             <span class="muted">$</span> larp contact --new
           </p>
 
-          <label class="field">
-            <span class="field__label mono">name</span>
-            <input name="name" type="text" autocomplete="name" required maxlength="100" />
-          </label>
-          <label class="field">
-            <span class="field__label mono">email</span>
-            <input name="email" type="email" autocomplete="email" required maxlength="200" />
-          </label>
+          <div class="form__pair">
+            <label class="field">
+              <span class="field__label mono">name *</span>
+              <input name="name" type="text" autocomplete="name" required maxlength="100" />
+            </label>
+            <label class="field">
+              <span class="field__label mono">email *</span>
+              <input name="email" type="email" autocomplete="email" required maxlength="200" />
+            </label>
+          </div>
           <label class="field">
             <span class="field__label mono">
               company <em>(optional)</em>
             </span>
             <input name="company" type="text" autocomplete="organization" maxlength="120" />
           </label>
+
+          <fieldset class="chips">
+            <legend class="field__label mono">--topic</legend>
+            <div class="chips__row">
+              {topics.map((t, i) => (
+                <label class="chip mono">
+                  <input type="radio" name="topic" value={t.value} checked={i === 0} />
+                  <span>{t.label}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+
           <label class="field">
-            <span class="field__label mono">what are we solving?</span>
+            <span class="field__label mono">what are we solving? *</span>
             <textarea name="message" rows="5" required minlength="10" maxlength="5000" />
           </label>
 
@@ -86,6 +96,32 @@ const mailtoSubject = 'Project enquiry — via larplabth.com';
           <div class="form__trap" aria-hidden="true">
             <label>
               Website <input name="website" type="text" tabindex="-1" autocomplete="off" />
+            </label>
+          </div>
+
+          <div class="checks">
+            <label class="check">
+              <input type="checkbox" name="terms" required />
+              <span class="check__box" aria-hidden="true" />
+              <span>
+                I agree to the{' '}
+                <a href="/terms" target="_blank" rel="noopener">
+                  Terms
+                </a>{' '}
+                and{' '}
+                <a href="/privacy" target="_blank" rel="noopener">
+                  Privacy Policy
+                </a>
+                . *
+              </span>
+            </label>
+            <label class="check">
+              <input type="checkbox" name="marketing" />
+              <span class="check__box" aria-hidden="true" />
+              <span>
+                Email me occasional updates from {site.name}{' '}
+                <em>(optional — unsubscribe any time)</em>.
+              </span>
             </label>
           </div>
 
@@ -118,38 +154,6 @@ const mailtoSubject = 'Project enquiry — via larplabth.com';
 </section>
 
 <script>
-  // ---- click-to-reveal email (address is only decoded here, never in the page HTML) ----
-  const reveal = document.querySelector<HTMLElement>('[data-email-reveal]');
-  if (reveal) {
-    const btn = reveal.querySelector<HTMLButtonElement>('[data-reveal-btn]')!;
-    const box = reveal.querySelector<HTMLElement>('[data-reveal-addr]')!;
-    const link = reveal.querySelector<HTMLAnchorElement>('[data-addr-link]')!;
-    const copyBtn = reveal.querySelector<HTMLButtonElement>('[data-copy-addr]')!;
-    const label = copyBtn.querySelector<HTMLElement>('[data-copy-label]')!;
-    let address = '';
-
-    btn.addEventListener('click', () => {
-      address = atob(reveal.dataset.e ?? '');
-      link.textContent = address;
-      link.href = `mailto:${address}?subject=${encodeURIComponent(reveal.dataset.subject ?? '')}`;
-      btn.hidden = true;
-      btn.setAttribute('aria-expanded', 'true');
-      box.hidden = false;
-      link.focus();
-    });
-
-    copyBtn.addEventListener('click', async () => {
-      try {
-        await navigator.clipboard.writeText(address);
-        label.textContent = 'copied ✓';
-      } catch {
-        label.textContent = 'copy failed';
-      }
-      setTimeout(() => (label.textContent = 'copy address'), 1800);
-    });
-  }
-
-  // ---- contact form ----
   const form = document.querySelector<HTMLFormElement>('[data-contact-form]');
   if (form) {
     const status = form.querySelector<HTMLElement>('[data-form-status]')!;
@@ -159,6 +163,7 @@ const mailtoSubject = 'Project enquiry — via larplabth.com';
       name_required: 'Please enter your name.',
       email_invalid: 'That email address looks off.',
       message_too_short: 'Tell us a bit more (at least 10 characters).',
+      terms_required: 'Please accept the Terms and Privacy Policy to send your message.',
       captcha_required: 'Please complete the check below.',
       captcha_failed: 'The check failed — please try again.',
       not_configured: 'The form is not ready yet — please email us directly.',
@@ -172,7 +177,9 @@ const mailtoSubject = 'Project enquiry — via larplabth.com';
       e.preventDefault();
       if (!form.reportValidity()) return;
       const fd = new FormData(form);
-      const payload = Object.fromEntries(fd.entries());
+      const payload: Record<string, unknown> = Object.fromEntries(fd.entries());
+      payload.terms = fd.get('terms') === 'on';
+      payload.marketing = fd.get('marketing') === 'on';
       payload.turnstileToken = String(fd.get('cf-turnstile-response') ?? '');
 
       submit.disabled = true;
@@ -233,74 +240,61 @@ const mailtoSubject = 'Project enquiry — via larplabth.com';
 <style>
   .contact__grid {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
     gap: var(--s-7);
     align-items: start;
   }
   .contact__direct {
     display: grid;
     gap: var(--s-4);
+    min-width: 0;
   }
-  .reveal__btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.8rem 1.1rem;
-    background: none;
-    border: 1px solid var(--c-line-strong);
-    border-radius: var(--radius);
-    color: var(--c-text);
-    font-size: var(--fs-sm);
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition:
-      border-color var(--dur) var(--ease),
-      background var(--dur) var(--ease);
-  }
-  .reveal__btn:hover {
-    border-color: var(--c-text);
-    background: var(--c-surface);
-  }
-  .reveal__addr {
-    display: grid;
-    gap: var(--s-2);
-    justify-items: start;
-  }
-  .reveal__link {
-    font-size: var(--fs-lg);
-    letter-spacing: -0.02em;
-    overflow-wrap: anywhere;
-    background-image: linear-gradient(currentColor, currentColor);
-    background-size: 100% 1px;
-    background-position: 0 100%;
-    background-repeat: no-repeat;
+  .contact__sub {
+    margin-top: var(--s-4);
   }
   .contact__note {
     font-size: var(--fs-sm);
     max-width: 24rem;
   }
-  .copy {
-    background: none;
-    border: 0;
-    padding: 0.2rem 0;
+
+  /* social links: label ......... handle ↗ (same dotted rows as the Tetris panel) */
+  .rows {
+    display: grid;
+    gap: var(--s-1);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .rows__item {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6ch;
+    padding: var(--s-2) 0;
     font-size: var(--fs-sm);
+  }
+  .rows__k {
+    flex: none;
     color: var(--c-muted);
-    cursor: pointer;
+  }
+  .rows__dots {
+    flex: 1;
+    min-width: 1ch;
+    border-bottom: 1px dotted var(--c-line-strong);
+    transform: translateY(-0.28em);
+  }
+  .rows__v {
+    flex: none;
+    color: var(--c-text);
+    text-align: right;
+  }
+  .rows__item:hover .rows__v {
     text-decoration: underline;
     text-underline-offset: 4px;
   }
-  .copy:hover {
+  .rows__item:hover .rows__k {
     color: var(--c-text);
   }
-  .socials {
-    display: flex;
-    gap: var(--s-5);
-    list-style: none;
-    padding: 0;
-    font-family: var(--f-mono);
-    font-size: var(--fs-sm);
-  }
+
   .contact__term {
     padding: var(--s-5) var(--s-6);
     border: 1px solid var(--c-line-strong);
@@ -312,6 +306,7 @@ const mailtoSubject = 'Project enquiry — via larplabth.com';
   .contact__term p {
     white-space: pre;
   }
+
   /* ---- form ---- */
   .form {
     display: grid;
@@ -319,13 +314,20 @@ const mailtoSubject = 'Project enquiry — via larplabth.com';
     padding: var(--s-6);
     border: 1px solid var(--c-line-strong);
     background: var(--c-surface);
+    min-width: 0;
   }
   .form__title {
     font-size: var(--fs-sm);
   }
+  .form__pair {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s-4);
+  }
   .field {
     display: grid;
     gap: var(--s-2);
+    min-width: 0;
   }
   .field__label {
     font-size: var(--fs-xs);
@@ -362,6 +364,118 @@ const mailtoSubject = 'Project enquiry — via larplabth.com';
     outline: none;
     border-color: var(--c-signal);
   }
+
+  /* topic chips (radio group) */
+  .chips {
+    display: grid;
+    gap: var(--s-2);
+    margin: 0;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+  }
+  .chips__row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2);
+  }
+  .chip {
+    position: relative;
+    cursor: pointer;
+  }
+  .chip input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+  .chip span {
+    display: inline-block;
+    padding: 0.45rem 0.8rem;
+    border: 1px solid var(--c-line-strong);
+    border-radius: var(--radius);
+    font-size: var(--fs-xs);
+    letter-spacing: 0.04em;
+    color: var(--c-muted);
+    transition:
+      background var(--dur) var(--ease),
+      color var(--dur) var(--ease),
+      border-color var(--dur) var(--ease);
+  }
+  .chip:hover span {
+    border-color: var(--c-text);
+    color: var(--c-text);
+  }
+  .chip input:checked + span {
+    background: var(--c-text);
+    border-color: var(--c-text);
+    color: var(--c-bg);
+  }
+  .chip input:focus-visible + span {
+    outline: 1px solid var(--c-signal);
+    outline-offset: 3px;
+  }
+
+  /* consent checkboxes */
+  .checks {
+    display: grid;
+    gap: var(--s-3);
+  }
+  .check {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: var(--s-3);
+    align-items: start;
+    font-size: var(--fs-sm);
+    line-height: 1.55;
+    color: var(--c-muted);
+    cursor: pointer;
+  }
+  .check input {
+    position: absolute;
+    width: 1.1rem;
+    height: 1.1rem;
+    opacity: 0;
+    cursor: pointer;
+  }
+  .check__box {
+    display: grid;
+    place-items: center;
+    width: 1.1rem;
+    height: 1.1rem;
+    margin-top: 0.15rem;
+    border: 1px solid var(--c-line-strong);
+    border-radius: var(--radius);
+    background: var(--c-bg);
+    transition:
+      background var(--dur) var(--ease),
+      border-color var(--dur) var(--ease);
+  }
+  .check input:checked + .check__box {
+    background: var(--c-text);
+    border-color: var(--c-text);
+  }
+  .check input:checked + .check__box::after {
+    content: '';
+    width: 0.5rem;
+    height: 0.5rem;
+    background: var(--c-bg);
+  }
+  .check input:focus-visible + .check__box {
+    outline: 1px solid var(--c-signal);
+    outline-offset: 3px;
+  }
+  .check a {
+    color: var(--c-text);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .check em {
+    font-style: normal;
+    opacity: 0.8;
+  }
+
   .form__trap {
     position: absolute;
     left: -10000px;
@@ -411,6 +525,14 @@ const mailtoSubject = 'Project enquiry — via larplabth.com';
   }
   @media (max-width: 56rem) {
     .contact__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  @media (max-width: 36rem) {
+    .form {
+      padding: var(--s-5) var(--s-4);
+    }
+    .form__pair {
       grid-template-columns: minmax(0, 1fr);
     }
   }

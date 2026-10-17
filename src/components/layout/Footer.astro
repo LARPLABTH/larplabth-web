@@ -25,11 +25,25 @@ const year = new Date().getFullYear();
         ))}
       </ul>
     </nav>
+    <ul class="ftr__social mono" aria-label="Social links">
+      {site.socials.map((x) => (
+        <li>
+          <a href={x.href} target="_blank" rel="noopener noreferrer">
+            {x.label.toLowerCase()} <span aria-hidden="true">↗</span>
+          </a>
+        </li>
+      ))}
+    </ul>
     <div class="ftr__meta label">
       <span>
         © {year} {site.name}
       </span>
       <span>{site.location}</span>
+      <a href="/terms">Terms</a>
+      <a href="/privacy">Privacy</a>
+      <button type="button" class="ftr__link" data-open-consent>
+        Storage settings
+      </button>
     </div>
   </div>
 </footer>
@@ -76,6 +90,36 @@ const year = new Date().getFullYear();
   }
   .ftr__nav a:hover,
   .ftr__meta a:hover {
+    color: var(--c-text);
+  }
+  .ftr__social {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2) var(--s-6);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: var(--fs-sm);
+  }
+  .ftr__social a {
+    color: var(--c-muted);
+    transition: color var(--dur) var(--ease);
+  }
+  .ftr__social a:hover {
+    color: var(--c-text);
+  }
+  .ftr__link {
+    padding: 0;
+    background: none;
+    border: 0;
+    font: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    color: inherit;
+    cursor: pointer;
+  }
+  .ftr__link:hover {
     color: var(--c-text);
   }
   .ftr__meta {

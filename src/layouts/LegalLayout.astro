@@ -1,0 +1,104 @@
+---
+/** Plain reading layout for the Terms and Privacy pages. */
+import BaseLayout from './BaseLayout.astro';
+import SectionHeader from '../components/ui/SectionHeader.astro';
+import { site } from '../config/site';
+
+interface Props {
+  title: string;
+  num: string;
+  label: string;
+  description: string;
+}
+const { title, num, label, description } = Astro.props;
+---
+
+<BaseLayout title={title} description={description}>
+  <section class="section legal">
+    <div class="container">
+      <SectionHeader num={num} label={label} title={title} />
+      <p class="legal__meta label">
+        Version {site.legalVersion} · English · This is a plain-language policy, written by the
+        team, not a lawyer.
+      </p>
+      <article class="legal__body">
+        <slot />
+      </article>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .legal__meta {
+    margin-bottom: var(--s-7);
+    max-width: 46rem;
+    line-height: 1.7;
+    text-transform: none;
+    letter-spacing: 0.02em;
+  }
+  .legal__body {
+    max-width: 46rem;
+    font-size: var(--fs-md);
+    line-height: 1.75;
+  }
+  .legal__body :global(h2) {
+    margin: var(--s-8) 0 var(--s-3);
+    font-size: var(--fs-lg);
+    padding-top: var(--s-6);
+    border-top: 1px solid var(--c-line);
+  }
+  .legal__body :global(h2:first-child) {
+    margin-top: 0;
+    border-top: 0;
+    padding-top: 0;
+  }
+  .legal__body :global(p),
+  .legal__body :global(ul) {
+    margin: 0 0 var(--s-4);
+    color: var(--c-muted);
+  }
+  .legal__body :global(ul) {
+    padding-left: 1.2rem;
+  }
+  .legal__body :global(li) {
+    margin-bottom: var(--s-2);
+  }
+  .legal__body :global(strong) {
+    color: var(--c-text);
+    font-weight: 500;
+  }
+  .legal__body :global(a) {
+    color: var(--c-text);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  .legal__body :global(table) {
+    width: 100%;
+    margin: 0 0 var(--s-5);
+    border-collapse: collapse;
+    font-size: var(--fs-sm);
+  }
+  .legal__body :global(th),
+  .legal__body :global(td) {
+    padding: var(--s-3);
+    text-align: left;
+    vertical-align: top;
+    border: 1px solid var(--c-line);
+  }
+  .legal__body :global(th) {
+    font-weight: 500;
+    color: var(--c-text);
+    background: var(--c-surface);
+  }
+  .legal__body :global(td) {
+    color: var(--c-muted);
+  }
+  .legal__body :global(code) {
+    font-family: var(--f-mono);
+    font-size: 0.9em;
+    color: var(--c-text);
+  }
+  .legal__scroll {
+    overflow-x: auto;
+  }
+</style>

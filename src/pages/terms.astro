@@ -1,0 +1,78 @@
+---
+import LegalLayout from '../layouts/LegalLayout.astro';
+import { site } from '../config/site';
+---
+
+<LegalLayout
+  title="Terms of Use"
+  num="§"
+  label="Terms"
+  description={`The terms for using ${site.name}'s website and contact form.`}
+>
+  <h2>1. Who we are</h2>
+  <p>
+    <strong>{site.name}</strong> is a team of college students in Thailand that builds software,
+    tools, services and devices. We are staying anonymous for now. You can reach us through the
+    contact form or the email address on the <a href="/#contact">contact section</a>.
+  </p>
+
+  <h2>2. Using this website</h2>
+  <ul>
+    <li>You may browse and use this website for lawful, personal or business purposes.</li>
+    <li>
+      Do not attack, overload or probe the site or the contact form, or use them to send spam,
+      malware or anything unlawful.
+    </li>
+    <li>
+      The Tetris game and other small features are provided for fun, as they are, with no promise
+      that they will always be available.
+    </li>
+  </ul>
+
+  <h2>3. Contact form</h2>
+  <p>
+    When you send a message you confirm that the details you give are yours to share and that you
+    have read the <a href="/privacy">Privacy Policy</a>. Sending a message does not create a
+    contract or promise that we will take on your project; we reply to discuss it first.
+  </p>
+  <p>
+    <strong>Email updates are optional.</strong> We only send updates if you tick the separate
+    "email me updates" box, and you can withdraw at any time by telling us.
+  </p>
+
+  <h2>4. Our content</h2>
+  <p>
+    The text, logo, artwork and code of this website belong to {site.name} unless stated otherwise.
+    Please don't copy the logo or present our work as yours. Our open-source projects are covered by
+    the licence stated in each project.
+  </p>
+
+  <h2>5. Projects and information</h2>
+  <p>
+    Information about our projects and services is general and may change or be incomplete while we
+    are still building. Nothing on this site is professional, legal, medical or financial advice.
+  </p>
+
+  <h2>6. Links to other sites</h2>
+  <p>
+    We link to third-party sites (for example GitHub, Facebook and Instagram). We don't control them
+    and aren't responsible for their content or privacy practices.
+  </p>
+
+  <h2>7. No warranty and limits of liability</h2>
+  <p>
+    The website is provided "as is". To the extent allowed by law, we are not liable for losses that
+    come from using, or not being able to use, this website.
+  </p>
+
+  <h2>8. Changes and governing law</h2>
+  <p>
+    We may update these terms; the version number above changes when we do. These terms are governed
+    by the laws of Thailand.
+  </p>
+
+  <h2>9. Questions</h2>
+  <p>
+    Contact us through the <a href="/#contact">contact section</a>.
+  </p>
+</LegalLayout>

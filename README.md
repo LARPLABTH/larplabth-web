@@ -109,6 +109,22 @@ Notes:
 - Secrets added in the dashboard persist across deployments.
 - Local check of the Worker: `npm run build && npx wrangler dev` (then http://localhost:8787).
 
+## Consent, legal pages and the contact form
+
+- `src/scripts/consent.ts`: the site only keeps the visitor's theme and Tetris best score in the browser
+  **after they accept** the storage notice (`StorageNotice.astro`, shown once; "Storage settings" in the
+  footer reopens it). "Essential only" keeps the site fully working and erases anything saved. The
+  choice itself is stored as `larp-consent`. Any new thing the site stores must go through
+  `prefGet`/`prefSet` and be listed in `/privacy` (section 6).
+- `/terms` and `/privacy` (`src/pages`, plain-language drafts, **not legal advice** — have them
+  reviewed). Bump `legalVersion` in `site.ts` **and** `LEGAL_VERSION` in `worker/contact.ts` when the text
+  changes; the accepted version and time are written into every message email.
+- Contact form: required "I agree to the Terms and Privacy Policy" checkbox (the Worker rejects
+  messages without it), optional "email me updates" checkbox (the email says `Email updates: YES` only when
+  ticked), topic chips, Turnstile.
+- Socials (Facebook, Instagram, GitHub) live in `site.socials` and feed the Contact section, the footer
+  and the structured data.
+
 ## TODO (content phase)
 
 - [x] Logo v1 (custom wordmark + `<L/>` mark)
