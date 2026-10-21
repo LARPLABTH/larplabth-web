@@ -3,6 +3,10 @@
  * Shown in the Lab section while no project is public: a pixel scene of a LARPer and an
  * AI building a rocket that isn't ready to launch yet. Logic: src/scripts/fx/construction.ts
  */
+import { useLocale } from '../../i18n/ui';
+import { kw } from '../../i18n/thai';
+
+const { t } = useLocale(Astro.currentLocale);
 ---
 
 <figure class="uc" data-reveal>
@@ -21,9 +25,7 @@
       <br />
       มองข้ามไปก่อน
     </p>
-    <p class="uc__en">
-      Under construction. Skip ahead for now — we'll show our projects when they're ready to launch.
-    </p>
+    <p class="uc__en" set:html={kw(t.lab.ucText)} />
     <div class="uc__cli mono" aria-hidden="true">
       <p>
         <span class="muted">$</span> larp build --lab
@@ -33,7 +35,7 @@
       </p>
     </div>
     <a class="uc__skip mono" href="#stack">
-      skip ahead <span aria-hidden="true">-&gt;</span>
+      {t.lab.ucSkip} <span aria-hidden="true">-&gt;</span>
     </a>
   </figcaption>
 </figure>
@@ -101,7 +103,7 @@
     align-content: center;
   }
   .uc__th {
-    font-family: 'Sukhumvit Set', 'Thonburi', 'Leelawadee UI', 'Noto Sans Thai', var(--f-sans);
+    font-family: var(--f-sans);
     font-size: var(--fs-xl);
     font-weight: 500;
     line-height: 1.35;

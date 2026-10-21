@@ -2,6 +2,10 @@
 import Button from '../ui/Button.astro';
 import TetrisGame from './TetrisGame.astro';
 import { site } from '../../config/site';
+import { useLocale } from '../../i18n/ui';
+import { kw } from '../../i18n/thai';
+
+const { t } = useLocale(Astro.currentLocale);
 
 type Line = { kind: 'cmd' | 'out'; text: string };
 const terminal: Line[] = [
@@ -20,31 +24,26 @@ const terminal: Line[] = [
   <div class="container hero__grid">
     <div class="hero__copy">
       <p class="label hero__kicker">
-        <span data-scramble>// developer team</span> — {site.location}
+        <span data-scramble>{t.hero.kicker}</span> — {t.footer.location}
       </p>
       <h1 id="hero-title" class="hero__title">
-        We build software,
-        <br /> tools &amp; devices
+        <Fragment set:html={kw(t.hero.title1)} />
+        <br /> <Fragment set:html={kw(t.hero.title2)} />
         <span class="hero__cursor" aria-hidden="true">
           _
         </span>
       </h1>
       <p class="hero__sub">
-        {site.name} is a team of college students from Thailand. We build SaaS, tools, services and
-        devices — and we help teams solve hard technical problems.
+        {site.name} <Fragment set:html={kw(t.hero.sub)} />
       </p>
       <div class="hero__ctas">
-        <Button href="#contact">Start a project</Button>
+        <Button href="#contact">{t.header.cta}</Button>
         <Button href="#about" variant="ghost">
-          About us
+          {t.hero.about}
         </Button>
       </div>
 
-      <div
-        class="term"
-        role="img"
-        aria-label="Terminal: larp --init loads saas, tools, services, devices, maker and consult modules; status: online, accepting projects; motto: LARP it till you make it."
-      >
+      <div class="term" role="img" aria-label={t.hero.term}>
         <div class="term__bar" aria-hidden="true">
           <span></span>
           <span></span>

@@ -1,35 +1,28 @@
 ---
 import SectionHeader from '../ui/SectionHeader.astro';
+import { useLocale } from '../../i18n/ui';
+import { kw, kwHtml } from '../../i18n/thai';
+
+const { t } = useLocale(Astro.currentLocale);
 
 // Facts shown beside the copy. `href` makes a fact clickable.
 // TODO: "HANA" is a placeholder — the team will explain what it is later.
 const facts = [
-  { label: 'Who', value: 'LARPERs' },
-  { label: 'Where', value: 'Thailand' },
-  { label: 'Infrastructure', value: 'HANA' },
-  { label: 'Proof', value: 'Works', href: '#lab' },
+  { label: t.about.facts.who, value: 'LARPERs' },
+  { label: t.about.facts.where, value: 'Thailand' },
+  { label: t.about.facts.infra, value: 'HANA' },
+  { label: t.about.facts.proof, value: 'Works', href: '#lab' },
 ];
 ---
 
 <section class="section" id="about" aria-labelledby="about-title">
   <div class="container">
-    <SectionHeader
-      id="about-title"
-      num="01"
-      label="About"
-      title="College students building real software, tools & devices."
-    />
+    <SectionHeader id="about-title" num="01" label={t.about.label} title={t.about.title} />
     <div class="about">
       <div class="about__copy" data-reveal>
-        <p>
-          We're <strong>LARPers</strong> — a team of college students from Thailand. We turn our own
-          ideas into projects: SaaS products, tools, services, devices and maker builds.
-        </p>
-        <p class="muted">
-          We also work with others. If you have something to build or a problem to solve, contact us
-          for development or consulting.
-        </p>
-        <p class="muted">We're staying anonymous for now. More about the team soon.</p>
+        <p set:html={kwHtml(t.about.p1)} />
+        <p class="muted" set:html={kw(t.about.p2)} />
+        <p class="muted" set:html={kw(t.about.p3)} />
       </div>
 
       <ul class="facts" data-reveal>

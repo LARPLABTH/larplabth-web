@@ -35,7 +35,7 @@ const oneLine = (s: string, max: number) =>
     .slice(0, max);
 
 /** Version of the Terms + Privacy text the form currently asks people to accept (keep in sync with site.ts). */
-const LEGAL_VERSION = '2026-10-17';
+const LEGAL_VERSION = '2026-10-21';
 const TOPICS: Record<string, string> = {
   build: 'build something',
   consulting: 'consulting',
@@ -68,6 +68,8 @@ export const handleContact = async (request: Request, env: ContactEnv): Promise<
   const message = str('message').replace(/\r\n/g, '\n').trim().slice(0, 5000);
   const topic = TOPICS[str('topic')] ?? TOPICS.build!;
   const marketing = data.marketing === true;
+  // which language version of the form / Terms / Privacy the sender saw
+  const lang = str('lang') === 'th' ? 'th' : 'en';
 
   if (!name) return json({ ok: false, error: 'name_required' }, 400);
   if (!EMAIL_RE.test(email)) return json({ ok: false, error: 'email_invalid' }, 400);
@@ -103,8 +105,8 @@ export const handleContact = async (request: Request, env: ContactEnv): Promise<
       subject: oneLine(`[larplabth.com] ${name}${company ? ` (${company})` : ''} — ${topic}`, 150),
       // The consent lines are our record of what the sender agreed to (PDPA).
       text:
-        `Topic: ${topic}\nName: ${name}\nEmail: ${email}\nCompany: ${company || '-'}\n\n${message}\n\n--\n` +
-        `Terms + Privacy accepted: yes (version ${LEGAL_VERSION}, ${new Date().toISOString()})\n` +
+        `Topic: ${topic}\nLanguage: ${lang}\nName: ${name}\nEmail: ${email}\nCompany: ${company || '-'}\n\n${message}\n\n--\n` +
+        `Terms + Privacy accepted: yes (version ${LEGAL_VERSION}, ${lang}, ${new Date().toISOString()})\n` +
         `Email updates: ${marketing ? 'YES - sender opted in' : 'no'}\n`,
     }),
   });

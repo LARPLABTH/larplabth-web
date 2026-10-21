@@ -3,6 +3,11 @@ import SectionHeader from '../ui/SectionHeader.astro';
 import EmailReveal from '../ui/EmailReveal.astro';
 import PixelIcon from '../ui/PixelIcon.astro';
 import { site } from '../../config/site';
+import { useLocale } from '../../i18n/ui';
+import { kw, kwHtml } from '../../i18n/thai';
+
+const { lang, t, path } = useLocale(Astro.currentLocale);
+const c = t.contact;
 
 /**
  * The form posts to the Worker in worker/contact.ts. It stays hidden (the decorative terminal
@@ -11,44 +16,53 @@ import { site } from '../../config/site';
 const FORM_ENABLED = site.contactForm.enabled;
 const siteKey = site.contactForm.turnstileSiteKey;
 
-const topics = [
-  { value: 'build', label: 'build something' },
-  { value: 'consulting', label: 'consulting' },
-  { value: 'join', label: 'join the team' },
-  { value: 'hello', label: 'just say hi' },
-];
+const topics = (['build', 'consulting', 'join', 'hello'] as const).map((value) => ({
+  value,
+  label: c.topics[value],
+}));
+
+// "I agree to the {terms} and {privacy}." with both placeholders turned into links
+const [agreeA, agreeRest = ''] = c.agree.split('{terms}');
+const [agreeB, agreeC] = agreeRest.split('{privacy}');
 ---
 
 <section class="section contact" id="contact" aria-labelledby="contact-title">
   <div class="container">
-    <SectionHeader
-      id="contact-title"
-      num="07"
-      label="Contact"
-      title="Got a problem worth solving?"
-      lead="Tell us what you're building or what's broken. We reply within 12 hours — if you haven't heard back, send it again."
-    />
+    <SectionHeader id="contact-title" num="07" label={c.label} title={c.title} lead={c.lead} />
 
     <div class="contact__grid">
       {FORM_ENABLED ? (
-        <form class="form" data-contact-form novalidate data-reveal>
+        <form
+          class="form"
+          data-contact-form
+          novalidate
+          data-reveal
+          data-lang={lang}
+          data-messages={JSON.stringify({
+            ...c.errors,
+            send: c.send,
+            sending: c.sending,
+            sentBtn: c.sentBtn,
+            sent: c.sent,
+          })}
+        >
           <p class="form__title mono">
             <span class="muted">$</span> larp contact --new
           </p>
 
           <div class="form__pair">
             <label class="field">
-              <span class="field__label mono">name *</span>
+              <span class="field__label mono">{c.name}</span>
               <input name="name" type="text" autocomplete="name" required maxlength="100" />
             </label>
             <label class="field">
-              <span class="field__label mono">email *</span>
+              <span class="field__label mono">{c.email}</span>
               <input name="email" type="email" autocomplete="email" required maxlength="200" />
             </label>
           </div>
           <label class="field">
             <span class="field__label mono">
-              company <em>(optional)</em>
+              {c.company} <em>{c.optional}</em>
             </span>
             <input name="company" type="text" autocomplete="organization" maxlength="120" />
           </label>
@@ -66,7 +80,7 @@ const topics = [
           </fieldset>
 
           <label class="field">
-            <span class="field__label mono">what are we solving? *</span>
+            <span class="field__label mono">{c.message}</span>
             <textarea name="message" rows="5" required minlength="10" maxlength="5000" />
           </label>
 
@@ -82,32 +96,36 @@ const topics = [
               <input type="checkbox" name="terms" required />
               <span class="check__box" aria-hidden="true" />
               <span>
-                I agree to the{' '}
-                <a href="/terms" target="_blank" rel="noopener">
-                  Terms
-                </a>{' '}
-                and{' '}
-                <a href="/privacy" target="_blank" rel="noopener">
-                  Privacy Policy
+                {agreeA}
+                <a href={path('/terms/')} target="_blank" rel="noopener">
+                  {c.termsLink}
                 </a>
-                . *
+                {agreeB}
+                <a href={path('/privacy/')} target="_blank" rel="noopener">
+                  {c.privacyLink}
+                </a>
+                {agreeC}
               </span>
             </label>
             <label class="check">
               <input type="checkbox" name="marketing" />
               <span class="check__box" aria-hidden="true" />
-              <span>
-                Email me occasional updates from {site.name}{' '}
-                <em>(optional — unsubscribe any time)</em>.
-              </span>
+              <span set:html={kwHtml(c.marketing)} />
             </label>
           </div>
 
-          {siteKey && <div class="cf-turnstile" data-sitekey={siteKey} data-theme="auto" />}
+          {siteKey && (
+            <div
+              class="cf-turnstile"
+              data-sitekey={siteKey}
+              data-theme="auto"
+              data-language={lang === 'th' ? 'th' : 'auto'}
+            />
+          )}
 
           <div class="form__foot">
             <button class="btn-send mono" type="submit">
-              <span data-send-label>send message</span>
+              <span data-send-label>{c.send}</span>
               <span aria-hidden="true">-&gt;</span>
             </button>
             <p class="form__status mono" role="status" aria-live="polite" data-form-status />
@@ -128,8 +146,8 @@ const topics = [
         </div>
       )}
 
-      <aside class="contact__direct" data-reveal aria-label="Other ways to reach us">
-        <p class="label">Find us</p>
+      <aside class="contact__direct" data-reveal aria-label={c.otherWays}>
+        <p class="label">{c.findUs}</p>
         <ul class="socials">
           {site.socials.map((x) => (
             <li>
@@ -154,13 +172,11 @@ const topics = [
             <PixelIcon name="email" size={28} />
           </span>
           <div class="mailcard__body">
-            <p class="social__name mono">Email</p>
+            <p class="social__name mono">{c.emailLabel}</p>
             <EmailReveal />
           </div>
         </div>
-        <p class="contact__note">
-          The form is the fastest way to reach us. We reply within 12 hours.
-        </p>
+        <p class="contact__note" set:html={kw(c.note)} />
       </aside>
     </div>
   </div>
@@ -172,15 +188,8 @@ const topics = [
     const status = form.querySelector<HTMLElement>('[data-form-status]')!;
     const label = form.querySelector<HTMLElement>('[data-send-label]')!;
     const submit = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
-    const MESSAGES: Record<string, string> = {
-      name_required: 'Please enter your name.',
-      email_invalid: 'That email address looks off.',
-      message_too_short: 'Tell us a bit more (at least 10 characters).',
-      terms_required: 'Please accept the Terms and Privacy Policy to send your message.',
-      captcha_required: 'Please complete the check below.',
-      captcha_failed: 'The check failed — please try again.',
-      not_configured: 'The form is not ready yet — please email us directly.',
-    };
+    // strings for the page's language (src/i18n/ui.ts → contact.errors + button labels)
+    const MESSAGES = JSON.parse(form.dataset.messages ?? '{}') as Record<string, string>;
     const say = (text: string, kind: 'ok' | 'err' | '' = '') => {
       status.textContent = text;
       status.dataset.kind = kind;
@@ -194,9 +203,10 @@ const topics = [
       payload.terms = fd.get('terms') === 'on';
       payload.marketing = fd.get('marketing') === 'on';
       payload.turnstileToken = String(fd.get('cf-turnstile-response') ?? '');
+      payload.lang = form.dataset.lang;
 
       submit.disabled = true;
-      label.textContent = 'sending…';
+      label.textContent = MESSAGES.sending!;
       say('');
       try {
         const res = await fetch('/api/contact', {
@@ -207,20 +217,17 @@ const topics = [
         const body = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string };
         if (res.ok && body.ok) {
           form.reset();
-          say('Sent. We reply within 12 hours.', 'ok');
-          label.textContent = 'sent ✓';
-          setTimeout(() => (label.textContent = 'send message'), 4000);
+          say(MESSAGES.sent!, 'ok');
+          label.textContent = MESSAGES.sentBtn!;
+          setTimeout(() => (label.textContent = MESSAGES.send!), 4000);
           (window as unknown as { turnstile?: { reset: () => void } }).turnstile?.reset();
         } else {
-          say(
-            MESSAGES[body.error ?? ''] ?? 'Something went wrong — please email us directly.',
-            'err',
-          );
-          label.textContent = 'send message';
+          say(MESSAGES[body.error ?? ''] ?? MESSAGES.generic!, 'err');
+          label.textContent = MESSAGES.send!;
         }
       } catch {
-        say('Network error — please try again or email us directly.', 'err');
-        label.textContent = 'send message';
+        say(MESSAGES.network!, 'err');
+        label.textContent = MESSAGES.send!;
       } finally {
         submit.disabled = false;
       }

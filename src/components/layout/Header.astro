@@ -3,23 +3,29 @@ import Logo from '../brand/Logo.astro';
 import ThemeToggle from './ThemeToggle.astro';
 import Button from '../ui/Button.astro';
 import { nav } from '../../config/site';
+import { locales, localeMeta, localePath, stripLocale, useLocale } from '../../i18n/ui';
+
+const { lang, t, path } = useLocale(Astro.currentLocale);
+// The language switch points at the same page in the other locale; a script below adds the #section.
+const other = locales.find((l) => l !== lang)!;
+const switchHref = localePath(other, stripLocale(Astro.url.pathname));
 ---
 
 <header class="hdr">
   <div class="hdr__inner container">
-    <a href="/#top" class="hdr__brand" aria-label="LARP LAB TH — home">
+    <a href={path('/#top')} class="hdr__brand" aria-label={t.meta.home}>
       <Logo uid="h" height={14} intro />
     </a>
 
-    <nav class="hdr__nav" id="site-nav" aria-label="Primary">
+    <nav class="hdr__nav" id="site-nav" aria-label={t.header.primary}>
       <ul>
-        {nav.map((item, i) => (
+        {nav.map((id, i) => (
           <li>
-            <a href={`/${item.href}`} data-section={item.href.slice(1)}>
+            <a href={path(`/#${id}`)} data-section={id}>
               <span class="hdr__num" aria-hidden="true">
                 {String(i + 1).padStart(2, '0')}
               </span>
-              {item.label}
+              {t.nav[id]}
             </a>
           </li>
         ))}
@@ -27,9 +33,23 @@ import { nav } from '../../config/site';
     </nav>
 
     <div class="hdr__actions">
+      <a
+        class="hdr__lang mono"
+        href={switchHref}
+        hreflang={other}
+        lang={other}
+        aria-label={t.header.switchTo}
+        data-lang-switch
+      >
+        {locales.map((l) => (
+          <span class:list={['hdr__langopt', l === lang && 'is-on']} aria-hidden="true">
+            {localeMeta[l].label}
+          </span>
+        ))}
+      </a>
       <ThemeToggle />
-      <Button href="/#contact" class="hdr__cta">
-        Start a project
+      <Button href={path('/#contact')} class="hdr__cta">
+        {t.header.cta}
       </Button>
       <button
         class="hdr__menu"
@@ -38,7 +58,7 @@ import { nav } from '../../config/site';
         aria-controls="site-nav"
         data-menu-toggle
       >
-        <span class="sr-only">Menu</span>
+        <span class="sr-only">{t.header.menu}</span>
         <span class="hdr__bars" aria-hidden="true"></span>
       </button>
     </div>
@@ -46,6 +66,13 @@ import { nav } from '../../config/site';
 </header>
 
 <script>
+  // Keep the visitor on the same section when switching language.
+  document.querySelectorAll<HTMLAnchorElement>('[data-lang-switch]').forEach((a) => {
+    a.addEventListener('click', () => {
+      if (location.hash) a.href = a.href.split('#')[0] + location.hash;
+    });
+  });
+
   const btn = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
   const navEl = document.getElementById('site-nav');
   if (btn && navEl) {
@@ -162,6 +189,31 @@ import { nav } from '../../config/site';
     display: flex;
     align-items: center;
     gap: var(--s-3);
+  }
+  /* EN / TH: the current language is filled, the other one is the link target */
+  .hdr__lang {
+    display: inline-flex;
+    padding: 2px;
+    border: 1px solid var(--c-line-strong);
+    border-radius: var(--radius);
+    font-size: var(--fs-xs);
+    letter-spacing: 0.06em;
+    transition: border-color var(--dur) var(--ease);
+  }
+  .hdr__lang:hover {
+    border-color: var(--c-text);
+  }
+  .hdr__langopt {
+    padding: 0.2rem 0.4rem;
+    border-radius: calc(var(--radius) - 2px);
+    color: var(--c-muted);
+  }
+  .hdr__langopt.is-on {
+    background: var(--c-text);
+    color: var(--c-bg);
+  }
+  .hdr__lang:hover .hdr__langopt:not(.is-on) {
+    color: var(--c-text);
   }
   .hdr__actions :global(.hdr__cta) {
     padding: 0.5rem 0.8rem;

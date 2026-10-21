@@ -22,8 +22,12 @@
   color-scheme: dark;
 
   /* type */
-  --f-sans: 'Geist Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --f-mono: 'Geist Mono Variable', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  --f-sans:
+    'Geist Variable', 'IBM Plex Sans Thai', ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
+    sans-serif;
+  --f-mono:
+    'Geist Mono Variable', 'IBM Plex Sans Thai', ui-monospace, 'SFMono-Regular', Menlo, Consolas,
+    monospace;
   --f-pixel: 'Silkscreen', var(--f-mono);
 
   --fs-xs: 0.75rem;

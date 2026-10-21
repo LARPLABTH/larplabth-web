@@ -2,6 +2,10 @@
 import Logo from '../brand/Logo.astro';
 import PixelIcon from '../ui/PixelIcon.astro';
 import { nav, site } from '../../config/site';
+import { useLocale } from '../../i18n/ui';
+import { kw } from '../../i18n/thai';
+
+const { t, path } = useLocale(Astro.currentLocale);
 
 // Easter egg: the team name in 8-bit binary.
 const binary = [...'LARP LAB TH']
@@ -15,8 +19,8 @@ const year = new Date().getFullYear();
   <div class="container ftr__inner">
     <div class="ftr__brand">
       <Logo uid="f" height={18} />
-      <p class="ftr__tag">{site.tagline}</p>
-      <ul class="ftr__social" aria-label="Social links">
+      <p class="ftr__tag" set:html={kw(t.meta.tagline)} />
+      <ul class="ftr__social" aria-label={t.footer.social}>
         {site.socials.map((x) => (
           <li>
             <a
@@ -33,11 +37,11 @@ const year = new Date().getFullYear();
         ))}
       </ul>
     </div>
-    <nav aria-label="Footer">
+    <nav aria-label={t.footer.nav}>
       <ul class="ftr__nav">
-        {nav.map((item) => (
+        {nav.map((id) => (
           <li>
-            <a href={`/${item.href}`}>{item.label}</a>
+            <a href={path(`/#${id}`)}>{t.nav[id]}</a>
           </li>
         ))}
       </ul>
@@ -46,11 +50,11 @@ const year = new Date().getFullYear();
       <span>
         © {year} {site.name}
       </span>
-      <span>{site.location}</span>
-      <a href="/terms">Terms</a>
-      <a href="/privacy">Privacy</a>
+      <span>{t.footer.location}</span>
+      <a href={path('/terms/')}>{t.footer.terms}</a>
+      <a href={path('/privacy/')}>{t.footer.privacy}</a>
       <button type="button" class="ftr__link" data-open-consent>
-        Storage settings
+        {t.footer.storage}
       </button>
     </div>
   </div>

@@ -23,7 +23,12 @@ import Button from '../components/ui/Button.astro';
         </p>
       </div>
       <h1 class="sr-only">Page not found</h1>
-      <Button href="/">Back to home</Button>
+      <div class="nf__btns">
+        <Button href="/">Back to home</Button>
+        <Button href="/th/" variant="ghost">
+          <span lang="th">กลับหน้าแรก (ภาษาไทย)</span>
+        </Button>
+      </div>
     </div>
   </section>
 </BaseLayout>
@@ -34,6 +39,11 @@ import Button from '../components/ui/Button.astro';
 </script>
 
 <style>
+  .nf__btns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-3);
+  }
   .nf {
     min-height: calc(100dvh - var(--header-h) - 12rem);
     display: grid;

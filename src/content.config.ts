@@ -32,10 +32,13 @@ const projects = defineCollection({
       category: z.enum(['saas', 'tool', 'service', 'device', 'maker', 'consulting']),
       status: z.enum(['coming-soon', 'in-progress', 'shipped']).default('coming-soon'),
       summary: z.string(),
+      /** Thai summary for /th/; falls back to `summary` */
+      summaryTh: z.string().optional(),
       href: z.url().optional(),
       /** screenshot / cover shown on the card (path relative to the .md file) */
       cover: image().optional(),
       coverAlt: z.string().default(''),
+      coverAltTh: z.string().optional(),
       /** featured projects take two columns on desktop */
       featured: z.boolean().default(false),
       draft: z.boolean().default(false),

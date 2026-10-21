@@ -1,23 +1,27 @@
 ---
 /** Storage notice (cookies / local storage). Choice is saved by src/scripts/consent.ts. */
+import { useLocale } from '../../i18n/ui';
+import { kw } from '../../i18n/thai';
+
+const { t, path } = useLocale(Astro.currentLocale);
+const [before, after] = t.storage.text.split('{details}');
 ---
 
-<aside class="sn" data-storage-notice role="region" aria-label="Storage notice" hidden>
+<aside class="sn" data-storage-notice role="region" aria-label={t.storage.aria} hidden>
   <p class="sn__cmd mono">
     <span class="muted">$</span> larp storage
   </p>
   <p class="sn__text">
-    We keep two small things in your browser — your light/dark choice and your Tetris best score —
-    but only if you say yes. No ads, no tracking cookies. The contact form uses Cloudflare Turnstile
-    to block bots, and Cloudflare counts visits without cookies.{' '}
-    <a href="/privacy#storage">Details</a>
+    <Fragment set:html={kw(before ?? '')} />
+    <a href={path('/privacy/#storage')}>{t.storage.details}</a>
+    <Fragment set:html={kw(after ?? '')} />
   </p>
   <div class="sn__btns mono">
     <button type="button" class="sn__btn sn__btn--yes" data-consent="yes">
-      accept
+      {t.storage.accept}
     </button>
     <button type="button" class="sn__btn" data-consent="no">
-      essential only
+      {t.storage.essential}
     </button>
   </div>
 </aside>

@@ -4,6 +4,7 @@ import Header from '../components/layout/Header.astro';
 import Footer from '../components/layout/Footer.astro';
 import StorageNotice from '../components/layout/StorageNotice.astro';
 import { site } from '../config/site';
+import { locales, localeMeta, localePath, stripLocale, useLocale } from '../i18n/ui';
 
 interface Props {
   title?: string;
@@ -11,16 +12,27 @@ interface Props {
   image?: string;
   noindex?: boolean;
 }
+const { lang, t } = useLocale(Astro.currentLocale);
 const {
   title,
-  description = site.description,
+  description = t.meta.description,
   image = site.ogImage,
   noindex = false,
 } = Astro.props;
 
-const pageTitle = title ? `${title} — ${site.name}` : `${site.name} — ${site.tagline}`;
-const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url).href;
-const ogImage = new URL(image, Astro.site ?? site.url).href;
+const base = Astro.site ?? site.url;
+const pageTitle = title ? `${title} — ${site.name}` : `${site.name} — ${t.meta.tagline}`;
+const canonical = new URL(Astro.url.pathname, base).href;
+const ogImage = new URL(image, base).href;
+
+// Every indexable page exists in each locale at the same path (Thai under /th/).
+const pagePath = stripLocale(Astro.url.pathname);
+const alternates = noindex
+  ? []
+  : [
+      ...locales.map((l) => ({ hreflang: l, href: new URL(localePath(l, pagePath), base).href })),
+      { hreflang: 'x-default', href: new URL(pagePath, base).href },
+    ];
 
 const orgId = `${site.url}/#organization`;
 const jsonLd = {
@@ -32,7 +44,7 @@ const jsonLd = {
       name: site.name,
       alternateName: 'LARP LAB',
       url: site.url,
-      description: site.description,
+      description: t.meta.description,
       slogan: site.motto,
       logo: {
         '@type': 'ImageObject',
@@ -47,7 +59,7 @@ const jsonLd = {
       '@id': `${site.url}/#website`,
       url: site.url,
       name: site.name,
-      inLanguage: 'en',
+      inLanguage: [...locales],
       publisher: { '@id': orgId },
     },
   ],
@@ -55,7 +67,7 @@ const jsonLd = {
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={lang}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -63,6 +75,9 @@ const jsonLd = {
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     {noindex && <meta name="robots" content="noindex" />}
+    {alternates.map((a) => (
+      <link rel="alternate" hreflang={a.hreflang} href={a.href} />
+    ))}
 
     <meta name="theme-color" content="#0f0f0f" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -70,6 +85,12 @@ const jsonLd = {
     <link rel="sitemap" href="/sitemap-index.xml" />
 
     <meta property="og:type" content="website" />
+    <meta property="og:locale" content={localeMeta[lang].og} />
+    {locales
+      .filter((l) => l !== lang)
+      .map((l) => (
+        <meta property="og:locale:alternate" content={localeMeta[l].og} />
+      ))}
     <meta property="og:site_name" content={site.name} />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
@@ -103,7 +124,7 @@ const jsonLd = {
   </head>
   <body>
     <a class="skip-link" href="#main">
-      Skip to content
+      {t.meta.skip}
     </a>
     <Header />
     <main id="main">

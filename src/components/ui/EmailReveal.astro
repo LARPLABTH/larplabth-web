@@ -4,17 +4,25 @@
  * and decoded only when a visitor clicks. Keeps it out of simple scrapers; not strong secrecy.
  */
 import { site } from '../../config/site';
+import { useLocale } from '../../i18n/ui';
 
 interface Props {
   subject?: string;
   label?: string;
 }
-const { subject = 'Project enquiry — via larplabth.com', label = 'show email address' } =
-  Astro.props;
+const { t } = useLocale(Astro.currentLocale);
+const { subject = t.email.subject, label = t.email.show } = Astro.props;
 const encoded = Buffer.from(site.email).toString('base64');
 ---
 
-<div class="reveal" data-email-reveal data-e={encoded} data-subject={subject}>
+<div
+  class="reveal"
+  data-email-reveal
+  data-e={encoded}
+  data-subject={subject}
+  data-copied={t.email.copied}
+  data-failed={t.email.failed}
+>
   <button class="reveal__btn mono" type="button" aria-expanded="false" data-reveal-btn>
     <span>{label}</span>
     <span aria-hidden="true">-&gt;</span>
@@ -22,7 +30,7 @@ const encoded = Buffer.from(site.email).toString('base64');
   <div class="reveal__addr" hidden data-reveal-addr>
     <a class="reveal__link" data-addr-link></a>
     <button class="copy mono" type="button" data-copy-addr>
-      <span data-copy-label>copy address</span>
+      <span data-copy-label>{t.email.copy}</span>
     </button>
   </div>
 </div>
@@ -34,6 +42,7 @@ const encoded = Buffer.from(site.email).toString('base64');
     const link = reveal.querySelector<HTMLAnchorElement>('[data-addr-link]')!;
     const copyBtn = reveal.querySelector<HTMLButtonElement>('[data-copy-addr]')!;
     const label = copyBtn.querySelector<HTMLElement>('[data-copy-label]')!;
+    const copyText = (label.textContent ?? '').trim();
     let address = '';
 
     btn.addEventListener('click', () => {
@@ -49,11 +58,11 @@ const encoded = Buffer.from(site.email).toString('base64');
     copyBtn.addEventListener('click', async () => {
       try {
         await navigator.clipboard.writeText(address);
-        label.textContent = 'copied ✓';
+        label.textContent = reveal.dataset.copied ?? '';
       } catch {
-        label.textContent = 'copy failed';
+        label.textContent = reveal.dataset.failed ?? '';
       }
-      setTimeout(() => (label.textContent = 'copy address'), 1800);
+      setTimeout(() => (label.textContent = copyText), 1800);
     });
   });
 </script>

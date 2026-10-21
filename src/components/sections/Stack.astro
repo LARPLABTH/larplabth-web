@@ -1,14 +1,19 @@
 ---
 import SectionHeader from '../ui/SectionHeader.astro';
+import { useLocale } from '../../i18n/ui';
 
-// DRAFT — confirm with the team. Order matters (rendered top → bottom).
-const stack = [
-  { area: 'Web & SaaS', tools: ['TypeScript', 'Node.js', 'React', 'Astro', 'PostgreSQL'] },
-  { area: 'Mobile', tools: ['React Native', 'Flutter', 'PWA'] },
-  { area: 'Cloud & DevOps', tools: ['Docker', 'Cloudflare', 'AWS', 'CI/CD'] },
-  { area: 'Embedded & IoT', tools: ['C/C++', 'ESP32', 'STM32', 'MQTT'] },
-  { area: 'AI & Data', tools: ['Python', 'LLM integration', 'Computer vision'] },
+const { t } = useLocale(Astro.currentLocale);
+
+// DRAFT — confirm with the team. Order matters (rendered top → bottom); area names per language
+// are in src/i18n/ui.ts (stack.areas), in the same order.
+const tools = [
+  ['TypeScript', 'Node.js', 'React', 'Astro', 'PostgreSQL'],
+  ['React Native', 'Flutter', 'PWA'],
+  ['Docker', 'Cloudflare', 'AWS', 'CI/CD'],
+  ['C/C++', 'ESP32', 'STM32', 'MQTT'],
+  ['Python', 'LLM integration', 'Computer vision'],
 ];
+const stack = tools.map((list, i) => ({ area: t.stack.areas[i], tools: list }));
 ---
 
 <section class="section" id="stack" aria-labelledby="stack-title">
@@ -16,18 +21,18 @@ const stack = [
     <SectionHeader
       id="stack-title"
       num="05"
-      label="Stack"
-      title="What's on the bench."
-      lead="We pick tools for the problem, not the other way around. A snapshot of what we reach for most."
+      label={t.stack.label}
+      title={t.stack.title}
+      lead={t.stack.lead}
     />
     <div class="table-wrap" data-reveal>
       <table class="stack mono">
-        <caption class="sr-only">Technologies we use, by area</caption>
+        <caption class="sr-only">{t.stack.caption}</caption>
         <thead>
           <tr>
             <th scope="col">#</th>
-            <th scope="col">Area</th>
-            <th scope="col">Tools</th>
+            <th scope="col">{t.stack.area}</th>
+            <th scope="col">{t.stack.tools}</th>
           </tr>
         </thead>
         <tbody>

@@ -18,20 +18,38 @@ npm run format     # prettier
 
 ## Where to edit things
 
-| What                                     | Where                                                          |
-| ---------------------------------------- | -------------------------------------------------------------- |
-| Name, tagline, email, socials, nav       | `src/config/site.ts`                                           |
-| Services (What we do)                    | `src/content/services/*.md`                                    |
-| Process steps                            | `src/content/process/*.md`                                     |
-| Lab / projects (`draft: true` hides one) | `src/content/projects/*.md`                                    |
-| FAQ                                      | `src/content/faq/*.md` (frontmatter `question`, body = answer) |
-| Stack table                              | `src/components/sections/Stack.astro` (array at top)           |
-| About copy + stats                       | `src/components/sections/About.astro`                          |
-| Contact (form stub: `FORM_ENABLED`)      | `src/components/sections/Contact.astro`                        |
-| Colours, type, spacing                   | `src/styles/tokens.css`                                        |
-| **Logo (placeholder)**                   | `src/components/brand/Logo.astro` + `public/favicon.svg`       |
+| What                                     | Where                                                           |
+| ---------------------------------------- | --------------------------------------------------------------- |
+| Name, email, socials, nav order          | `src/config/site.ts`                                            |
+| All UI copy, EN + TH (tagline, headings) | `src/i18n/ui.ts` (`en` and `th` must have the same keys)        |
+| Services (What we do)                    | `src/content/services/{en,th}/*.md`                             |
+| Process steps                            | `src/content/process/{en,th}/*.md`                              |
+| Lab / projects (`draft: true` hides one) | `src/content/projects/*.md` (`summaryTh` for the Thai page)     |
+| FAQ                                      | `src/content/faq/{en,th}/*.md` (`question`, body = answer)      |
+| Stack table                              | `src/components/sections/Stack.astro` (tools) + `ui.ts` (areas) |
+| About facts                              | `src/components/sections/About.astro`                           |
+| Terms / Privacy                          | `src/pages/{terms,privacy}.astro` + `src/pages/th/…`            |
+| Contact (form stub: `FORM_ENABLED`)      | `src/components/sections/Contact.astro`                         |
+| Colours, type, spacing                   | `src/styles/tokens.css`                                         |
+| **Logo (placeholder)**                   | `src/components/brand/Logo.astro` + `public/favicon.svg`        |
 
 Content schemas are validated by zod in `src/content.config.ts`, so a typo in frontmatter fails the build.
+
+## Languages (English + Thai)
+
+- English stays at `/`, `/terms/`, `/privacy/`; Thai is the same page under `/th/` (Astro i18n,
+  `prefixDefaultLocale: false`). Every page has `hreflang` en / th / x-default and its own canonical;
+  the sitemap lists both languages with alternates.
+- Components get their strings with `useLocale(Astro.currentLocale)` from `src/i18n/ui.ts`.
+  Add a string to `en` first; TypeScript then fails until `th` has it too.
+- When adding a section or content file, add it in **both** `en/` and `th/`.
+- The header EN/TH switch links to the same page in the other language and keeps the `#section`.
+- Thai line breaks: `src/i18n/thai.ts` keeps listed compound/loan words from splitting mid-word
+  (`kw()`, applied by SectionHeader, Card, FAQ and the main copy). Add a word there if a Thai line
+  breaks in an odd place.
+- Thai glyphs come from IBM Plex Sans Thai (self-hosted, loaded only when Thai text renders).
+- The motto, CLI/terminal lines, Tetris and the logo stay in English on purpose.
+- The contact form sends `lang`; the email to the team shows which language version was accepted.
 
 ## Structure
 
@@ -39,7 +57,9 @@ Content schemas are validated by zod in `src/content.config.ts`, so a typo in fr
 src/
   config/site.ts            site identity + nav (single source of truth)
   content.config.ts         content collection schemas
-  content/                  markdown content (services, process, projects, faq)
+  content/                  markdown content (services, process, faq in en/ + th/; projects)
+  i18n/ui.ts                UI strings for en + th, locale helpers
+  i18n/thai.ts              keep Thai words together when lines wrap
   styles/tokens.css         design tokens: light/dark palettes, type scale, spacing
   styles/global.css         reset, base, utilities (.label .mono .pixel .dot-grid .cursor)
   layouts/BaseLayout.astro  <head> SEO/OG/JSON-LD, theme init, skip link
@@ -54,7 +74,8 @@ src/
     scramble.ts             binary text scramble ([data-scramble])
     tetris.ts / tetrisCore.ts  mono Tetris under the pixel field (rules are pure + tested)
     reducedMotion.ts        reduced-motion guard, visibility helpers, [data-reveal]
-  pages/index.astro, 404.astro
+  pages/index.astro, terms, privacy, 404.astro
+  pages/th/                 Thai versions (index, terms, privacy)
 public/  favicon.svg, og-default.png, robots.txt, _headers (Cloudflare)
 scripts/generate-brand.mjs  favicon / OG / avatar generator (sharp)
 design/                     exported logos (SVG, avatar PNG) for use outside the site
@@ -131,6 +152,6 @@ Notes:
 - [ ] Team profiles (team is anonymous for now)
 - [x] FAQ answers (8 questions)
 - [ ] Contact form: add Cloudflare secrets, then set `contactForm.enabled = true` (code is done; Resend domain verified)
-- [ ] Thai version, after the first project is added
+- [x] Thai version (2026-10-21; Thai copy and legal text need a native/legal review)
 - [ ] Lab projects
 - [ ] Confirm the Stack list

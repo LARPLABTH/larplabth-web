@@ -1,12 +1,15 @@
 ---
 import { site } from '../../config/site';
+import { useLocale } from '../../i18n/ui';
+
+const { t } = useLocale(Astro.currentLocale);
 
 // "LARP IT TILL YOU MAKE IT": LARP and MAKE IT in full strength, the words between dimmed.
 const words = site.motto.split(' ');
 const strong = new Set([0, words.length - 2, words.length - 1]);
 ---
 
-<section class="motto" aria-label="Our motto">
+<section class="motto" aria-label={t.motto.aria}>
   <div class="container">
     <p class="motto__cmd label" data-reveal>
       <span aria-hidden="true">$</span> larp --motto

@@ -1,8 +1,13 @@
 ---
 import { getCollection } from 'astro:content';
 import SectionHeader from '../ui/SectionHeader.astro';
+import { useLocale } from '../../i18n/ui';
+import { kw } from '../../i18n/thai';
 
-const steps = (await getCollection('process')).sort((a, b) => a.data.order - b.data.order);
+const { lang, t } = useLocale(Astro.currentLocale);
+const steps = (await getCollection('process', (e) => e.id.startsWith(`${lang}/`))).sort(
+  (a, b) => a.data.order - b.data.order,
+);
 ---
 
 <section class="section dot-grid" id="process" aria-labelledby="process-title">
@@ -10,9 +15,9 @@ const steps = (await getCollection('process')).sort((a, b) => a.data.order - b.d
     <SectionHeader
       id="process-title"
       num="03"
-      label="How we work"
-      title="From problem to shipped."
-      lead="Short loops, working software early, no black boxes. You always know what we're running."
+      label={t.process.label}
+      title={t.process.title}
+      lead={t.process.lead}
     />
     <ol class="log">
       {steps.map((s, i) => (
@@ -23,8 +28,8 @@ const steps = (await getCollection('process')).sort((a, b) => a.data.order - b.d
             <span data-scramble>larp {s.data.command}</span>
           </p>
           <div class="log__body">
-            <h3>{s.data.title}</h3>
-            <p>{s.data.summary}</p>
+            <h3 set:html={kw(s.data.title)} />
+            <p set:html={kw(s.data.summary)} />
           </div>
           <p class="log__status label" aria-hidden="true">
             {i < steps.length - 1 ? '-> next' : '✓ done'}

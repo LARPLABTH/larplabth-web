@@ -2,8 +2,13 @@
 import { getCollection } from 'astro:content';
 import SectionHeader from '../ui/SectionHeader.astro';
 import Card from '../ui/Card.astro';
+import { useLocale } from '../../i18n/ui';
+import { kw } from '../../i18n/thai';
 
-const services = (await getCollection('services')).sort((a, b) => a.data.order - b.data.order);
+const { lang, t } = useLocale(Astro.currentLocale);
+const services = (await getCollection('services', (e) => e.id.startsWith(`${lang}/`))).sort(
+  (a, b) => a.data.order - b.data.order,
+);
 ---
 
 <section class="section" id="services" aria-labelledby="services-title">
@@ -11,14 +16,14 @@ const services = (await getCollection('services')).sort((a, b) => a.data.order -
     <SectionHeader
       id="services-title"
       num="02"
-      label="What we do"
-      title="Six ways we build."
-      lead="Software, hardware and the space between. One team that can take an idea from whiteboard to working product."
+      label={t.services.label}
+      title={t.services.title}
+      lead={t.services.lead}
     />
     <div class="grid">
       {services.map((s) => (
         <Card index={String(s.data.order).padStart(2, '0')} code={s.data.code} title={s.data.title}>
-          <p>{s.data.summary}</p>
+          <p set:html={kw(s.data.summary)} />
           {s.data.tags.length > 0 && (
             <ul class="tags mono">
               {s.data.tags.map((t) => (

@@ -1,9 +1,11 @@
 ---
 /** Toggles data-theme on <html>; persists the choice. Initial theme is set inline in BaseLayout. */
+import { useLocale } from '../../i18n/ui';
+const { t } = useLocale(Astro.currentLocale);
 ---
 
 <button class="theme-toggle" type="button" data-theme-toggle>
-  <span class="sr-only">Colour theme:</span>
+  <span class="sr-only">{t.header.theme}</span>
   <svg viewBox="0 0 8 8" width="16" height="16" shape-rendering="crispEdges" aria-hidden="true">
     <rect
       x="0.5"

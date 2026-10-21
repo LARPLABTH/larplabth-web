@@ -1,4 +1,6 @@
 ---
+import { kw } from '../../i18n/thai';
+
 interface Props {
   num: string; // "01"
   label: string; // "What we do"
@@ -8,6 +10,7 @@ interface Props {
   id?: string;
 }
 const { num, label, title, lead, id } = Astro.props;
+// kw(): keeps Thai compound words from breaking mid-word (src/i18n/thai.ts)
 ---
 
 <header class="sh" data-reveal>
@@ -18,10 +21,8 @@ const { num, label, title, lead, id } = Astro.props;
     <span class="sh__topic mono">{label}</span>
     <span class="sh__rule" aria-hidden="true"></span>
   </p>
-  <h2 class="sh__title" id={id}>
-    {title}
-  </h2>
-  {lead && <p class="sh__lead">{lead}</p>}
+  <h2 class="sh__title" id={id} set:html={kw(title)} />
+  {lead && <p class="sh__lead" set:html={kw(lead)} />}
 </header>
 
 <style>

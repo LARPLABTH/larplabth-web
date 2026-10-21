@@ -1,10 +1,20 @@
 ---
 import { getCollection, render } from 'astro:content';
 import SectionHeader from '../ui/SectionHeader.astro';
+import { useLocale } from '../../i18n/ui';
+import { kw, kwInHtml } from '../../i18n/thai';
 
-const entries = (await getCollection('faq')).sort((a, b) => a.data.order - b.data.order);
+const { lang, t } = useLocale(Astro.currentLocale);
+const entries = (await getCollection('faq', (e) => e.id.startsWith(`${lang}/`))).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+// Answers use the rendered Markdown HTML so Thai words can be kept together (src/i18n/thai.ts).
 const items = await Promise.all(
-  entries.map(async (e) => ({ ...e, Content: (await render(e)).Content })),
+  entries.map(async (e) => ({
+    ...e,
+    html: e.rendered?.html ? kwInHtml(e.rendered.html) : null,
+    Content: (await render(e)).Content,
+  })),
 );
 
 // FAQPage structured data from the same entries, with markdown stripped to plain text.
@@ -17,6 +27,7 @@ const plain = (md: string) =>
 const faqLd = {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
+  inLanguage: lang,
   mainEntity: entries.map((e) => ({
     '@type': 'Question',
     name: e.data.question,
@@ -28,18 +39,16 @@ const faqLd = {
 <script type="application/ld+json" set:html={JSON.stringify(faqLd)} />
 <section class="section" id="faq" aria-labelledby="faq-title">
   <div class="container faq">
-    <SectionHeader id="faq-title" num="06" label="FAQ" title="Questions, answered." />
+    <SectionHeader id="faq-title" num="06" label={t.faq.label} title={t.faq.title} />
     <div class="faq__list" data-reveal data-faq>
-      {items.map(({ data, Content }) => (
+      {items.map(({ data, html, Content }) => (
         <details class="faq__item">
           <summary>
-            <span class="faq__q">{data.question}</span>
+            <span class="faq__q" set:html={kw(data.question)} />
             <span class="faq__icon" aria-hidden="true" />
           </summary>
           <div class="faq__a">
-            <div class="faq__inner">
-              <Content />
-            </div>
+            <div class="faq__inner">{html ? <Fragment set:html={html} /> : <Content />}</div>
           </div>
         </details>
       ))}

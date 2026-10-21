@@ -1,4 +1,6 @@
 ---
+import { kw } from '../../i18n/thai';
+
 interface Props {
   index?: string;
   code?: string;
@@ -19,7 +21,7 @@ const { index, code, title, class: className } = Astro.props;
       )}
     </p>
   )}
-  <h3 class="card__title">{title}</h3>
+  <h3 class="card__title" set:html={kw(title)} />
   <div class="card__body">
     <slot />
   </div>

@@ -3,6 +3,10 @@ import { getCollection } from 'astro:content';
 import { Image } from 'astro:assets';
 import SectionHeader from '../ui/SectionHeader.astro';
 import UnderConstruction from './UnderConstruction.astro';
+import { useLocale } from '../../i18n/ui';
+import { kw } from '../../i18n/thai';
+
+const { lang, t } = useLocale(Astro.currentLocale);
 
 const projects = (await getCollection('projects', (p) => !p.data.draft)).sort(
   (a, b) => a.data.order - b.data.order,
@@ -31,11 +35,11 @@ function identicon(input: string, size = 10): { x: number; y: number }[] {
   return cells;
 }
 
-const statusLabel = {
-  'coming-soon': 'Coming soon',
-  'in-progress': 'In development',
-  shipped: 'Shipped',
-};
+const statusLabel = t.lab.status;
+const summary = (d: (typeof projects)[number]['data']) =>
+  lang === 'th' ? (d.summaryTh ?? d.summary) : d.summary;
+const coverAlt = (d: (typeof projects)[number]['data']) =>
+  lang === 'th' ? (d.coverAltTh ?? d.coverAlt) : d.coverAlt;
 ---
 
 <section class="section" id="lab" aria-labelledby="lab-title">
@@ -43,13 +47,9 @@ const statusLabel = {
     <SectionHeader
       id="lab-title"
       num="04"
-      label="Lab"
-      title="Things we're building."
-      lead={
-        projects.length
-          ? 'Products and experiments from the lab. More are on the way.'
-          : "Projects are in the workshop. We'll show them when they're ready to launch."
-      }
+      label={t.lab.label}
+      title={t.lab.title}
+      lead={projects.length ? t.lab.leadSome : t.lab.leadNone}
     />
     {projects.length > 0 ? (
       <ul class="lab">
@@ -60,7 +60,7 @@ const statusLabel = {
                 {p.data.cover ? (
                   <Image
                     src={p.data.cover}
-                    alt={p.data.coverAlt}
+                    alt={coverAlt(p.data)}
                     widths={[480, 800, 1200]}
                     sizes="(min-width: 56rem) 760px, 100vw"
                     loading="lazy"
@@ -88,7 +88,7 @@ const statusLabel = {
                     </span>
                   )}
                 </h3>
-                <p class="muted">{p.data.summary}</p>
+                <p class="muted" set:html={kw(summary(p.data))} />
                 {p.data.href && <p class="lab__url mono">{new URL(p.data.href).host}</p>}
               </div>
             </>
@@ -101,7 +101,7 @@ const statusLabel = {
                   href={p.data.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label={`${p.data.title} (opens in a new tab)`}
+                  aria-label={`${p.data.title} ${t.lab.newTab}`}
                 >
                   {tile}
                 </a>
@@ -111,7 +111,7 @@ const statusLabel = {
             </li>
           );
         })}
-        <li class="lab__item lab__next" data-reveal aria-label="Next project: coming soon">
+        <li class="lab__item lab__next" data-reveal aria-label={t.lab.next}>
           <div class="lab__nextbox mono" aria-hidden="true">
             <p>
               <span class="muted">$</span> larp new project

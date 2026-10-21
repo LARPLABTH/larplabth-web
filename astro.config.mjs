@@ -6,7 +6,18 @@ import sitemap from '@astrojs/sitemap';
 export default defineConfig({
   site: 'https://larplabth.com',
   trailingSlash: 'ignore',
-  integrations: [sitemap()],
+  // English stays at the root (/, /terms/, /privacy/); Thai lives under /th/. Keep in sync with src/i18n/ui.ts.
+  i18n: {
+    locales: ['en', 'th'],
+    defaultLocale: 'en',
+    routing: { prefixDefaultLocale: false },
+  },
+  integrations: [
+    sitemap({
+      // adds <xhtml:link rel="alternate" hreflang> pairs for each page
+      i18n: { defaultLocale: 'en', locales: { en: 'en', th: 'th' } },
+    }),
+  ],
   build: {
     inlineStylesheets: 'auto',
   },
